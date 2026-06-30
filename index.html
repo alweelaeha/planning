@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการงบประมาณโครงการและกิจกรรม | โรงเรียนนราสิกขาลัย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }
+        
+        /* 🌟 สไตล์สำหรับการพิมพ์รายงาน (Print) */
+        @media print {
+            /* ซ่อนทุกอย่างที่อยู่บนหน้าจอปกติ */
+            body > *:not(#printContainer) { display: none !important; }
+            
+            /* แสดงผลเฉพาะโซนนี้ตอนพิมพ์ */
+            #printContainer { 
+                display: block !important;
+                position: relative;
+                width: 100%; 
+                font-family: 'TH SarabunPSK', 'Sarabun', sans-serif; 
+                font-size: 16pt; 
+                color: #000;
+                text-align: center; 
+            }
+
+            .print-page-break { 
+                page-break-after: always; 
+                width: 100%; 
+                text-align: center; 
+            }
+            /* ยกเลิกการเว้นหน้าของหน้าสุดท้าย */
+            .print-page-break:last-child { page-break-after: auto; }
+            
+            /* กำหนดขอบ 1 เซนติเมตรทุกด้าน และแนวนอน */
+            @page { size: A4 landscape; margin: 1cm; }
+            
+            /* ห่อตารางเพื่อให้จัดกึ่งกลางได้ทั้งบล็อก */
+            .print-wrapper { display: inline-block; text-align: left; }
+
+            .print-table { 
+                width: auto; 
+                border-collapse: collapse; 
+                margin-top: 10px; 
+            }
+            .print-table th, .print-table td { 
+                border: 1px solid #000; 
+                padding: 4px 12px; 
+                font-size: 16pt; 
+                white-space: nowrap; 
+            }
+            .print-table th { font-weight: bold; text-align: center; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 🌟 โซนสำหรับการพิมพ์: ถูกซ่อนไว้ด้วย CSS inline เพื่อให้แสดงแค่ตอนพริ้นต์เท่านั้น -->
+    <div id="printContainer" style="display: none;"></div>
+
+    <!-- Header (หน้าจอปกติ) -->
+    <header class="bg-white shadow-md p-6 text-center relative">
+        <div class="absolute top-6 right-6 flex flex-col items-end">
+            <button id="btnLoginPanel" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition">
+                Log in
+            </button>
+            <div id="userPanel" class="hidden flex flex-col items-end space-y-2">
+                <span id="txtUserName" class="text-gray-700 font-semibold text-lg"></span>
+                <div class="flex space-x-2">
+                    <button onclick="openAddUser()" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow transition text-sm">เพิ่มบัญชีผู้ใช้</button>
+                    <button onclick="editAccountData()" class="bg-orange-500 hover:bg-orange-600 text-white py-1 px-3 rounded shadow transition text-sm">จัดการบัญชีผู้ใช้</button>
+                    <button id="btnLogout" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded shadow transition text-sm">ออกจากระบบ</button>
+                </div>
+            </div>
+        </div>
+        
+        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" alt="โลโก้โรงเรียนนราสิกขาลัย" class="w-24 h-24 mx-auto mb-3">
+        <h1 class="text-2xl font-bold text-gray-800">ระบบจัดการงบประมาณโครงการและกิจกรรม</h1>
+        <h2 class="text-xl text-gray-600">โรงเรียนนราสิกขาลัย</h2>
+    </header>
+
+    <!-- Main Content (หน้าจอปกติ) -->
+    <main class="flex-grow p-6 w-full max-w-7xl mx-auto">
+        
+        <!-- Admin Menu -->
+        <div id="adminMenu" class="hidden mb-6 bg-white p-4 rounded-xl shadow flex flex-wrap gap-3">
+            <button onclick="clickHome()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded font-medium text-gray-700 transition">หน้าหลัก (Dashboard)</button>
+            <button onclick="openAddActivity()" class="px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded font-medium text-blue-700 transition">เพิ่มโครงการ/กิจกรรม</button>
+            <button onclick="generatePrintPDF()" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded font-medium text-purple-700 transition">จัดพิมพ์รายงาน (PDF)</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold">สรุปงบประมาณกิจกรรมทั้งหมด</h3>
+                <button onclick="clickHome()" class="text-sm bg-white text-blue-800 px-3 py-1 rounded hover:bg-gray-100">รีเฟรชข้อมูล</button>
+            </div>
+            
+            <div class="overflow-x-auto p-4">
+                <table class="min-w-full divide-y divide-gray-200 border">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ลำดับ</th>
+                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ชื่อกิจกรรม (ชื่อโครงการ)</th>
+                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ประเภทงบประมาณ</th>
+                            <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">จัดสรร (บาท)</th>
+                            <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">คงเหลือ (บาท)</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-gray-700 admin-only hidden">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="bg-white divide-y divide-gray-200 text-sm">
+                        <!-- Content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-gray-50 flex justify-between items-center border-t">
+                <span id="pageInfo" class="text-gray-600 text-sm">แสดงหน้า 1</span>
+                <div class="space-x-2">
+                    <button onclick="prevPage()" class="px-3 py-1 border rounded hover:bg-gray-200 text-sm">ก่อนหน้า</button>
+                    <button onclick="nextPage()" class="px-3 py-1 border rounded bg-blue-600 text-white hover:bg-blue-700 text-sm">หน้าต่อไป</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Form -->
+        <div id="tab-manageData" class="hidden bg-white rounded-xl shadow p-6 max-w-3xl mx-auto">
+            <h3 id="formTitle" class="text-xl font-bold mb-4 text-gray-800">เพิ่มโครงการ/กิจกรรมใหม่</h3>
+            <input type="hidden" id="inpRowIndex"> 
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="divProjectId">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสโครงการ</label>
+                    <input type="text" id="inpProjectId" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divProjectName">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อโครงการ</label>
+                    <input type="text" id="inpProjectName" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divActivityId">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสกิจกรรม</label>
+                    <input type="text" id="inpActivityId" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divActivityName">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อกิจกรรม</label>
+                    <input type="text" id="inpActivityName" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divTeacher">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อครูผู้รับผิดชอบ</label>
+                    <input type="text" id="inpTeacher" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divBudgetType">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทงบประมาณ</label>
+                    <select id="inpBudgetType" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200 bg-white" onchange="handleBudgetTypeChange()">
+                        <option value="">-- เลือกประเภทงบประมาณ --</option>
+                        <option value="เงินอุดหนุนรายหัว">เงินอุดหนุนรายหัว</option>
+                        <option value="เงินกิจกรรมพัฒนาผู้เรียน">เงินกิจกรรมพัฒนาผู้เรียน</option>
+                        <option value="เงินรายได้สถานศึกษา">เงินรายได้สถานศึกษา</option>
+                        <option value="เงินสมทบห้องพิเศษวิทย์">เงินสมทบห้องพิเศษวิทย์</option>
+                        <option value="เงินสมทบห้อง 4 เหล่าทัพ">เงินสมทบห้อง 4 เหล่าทัพ</option>
+                        <option value="ไม่ใช้งบประมาณ">ไม่ใช้งบประมาณ</option>
+                    </select>
+                </div>
+                <div id="divBudgetReceived">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">งบประมาณที่ได้รับจัดสรร (บาท)</label>
+                    <input type="number" id="inpBudgetReceived" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+                <div id="divBudgetBalance" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">งบประมาณคงเหลือ (บาท)</label>
+                    <input type="number" id="inpBudgetBalance" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">ยกเลิก</button>
+                <button id="btnSaveData" onclick="saveActivity()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow transition">บันทึกข้อมูล</button>
+            </div>
+        </div>
+
+        <!-- Manage Account Form -->
+        <div id="tab-manageAccount" class="hidden bg-white rounded-xl shadow p-6 max-w-md mx-auto">
+            <input type="hidden" id="inpAccMode" value="edit">
+            <h3 id="accFormTitle" class="text-xl font-bold mb-4 text-gray-800">จัดการบัญชีผู้ใช้</h3>
+            <p class="text-xs text-red-500 mb-4">* Username และ Password ต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username (ชื่อผู้ใช้)</label>
+                    <input type="text" id="inpAccUser" maxlength="10" class="w-full border rounded-lg p-2 focus:ring focus:ring-orange-200">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password (รหัสผ่าน)</label>
+                    <input type="text" id="inpAccPass" maxlength="10" class="w-full border rounded-lg p-2 focus:ring focus:ring-orange-200">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-สกุลจริง (admin_name)</label>
+                    <input type="text" id="inpAccName" class="w-full border rounded-lg p-2 focus:ring focus:ring-orange-200">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">สิทธิ์ (role)</label>
+                    <select id="inpAccRole" class="w-full border rounded-lg p-2 focus:ring focus:ring-orange-200 bg-white">
+                        <option value="Admin">Admin</option>
+                        <option value="Teacher">Teacher</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ฝ่ายงาน/กลุ่มสาระ (department)</label>
+                    <input type="text" id="inpAccDept" class="w-full border rounded-lg p-2 focus:ring focus:ring-orange-200">
+                </div>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">ยกเลิก</button>
+                    <button onclick="saveAccountData()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition">บันทึก</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-auto">
+        <p class="text-sm">พัฒนาโดยฝ่ายแผนงานโรงเรียนนราสิกขาลัย &copy; 2026</p>
+    </footer>
+
+    <!-- Script -->
+    <script>
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby2dfS5G-2AIYJEONArfX2rVtZSXRthXzmlxkm71WhOMJUhnQPxxTog9In3b8l-SVOH/exec';
+
+        let allActivities = [];
+        let currentPage = 1;
+        const itemsPerPage = 20; 
+        let currentUser = null;
+
+        const fmtMoney = (num) => new Intl.NumberFormat('th-TH').format(num);
+        
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('ns_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                applyLoginState();
+            }
+            loadActivities();
+        });
+
+        document.getElementById('btnLoginPanel').addEventListener('click', () => {
+            Swal.fire({
+                title: 'เข้าสู่ระบบ',
+                html: `
+                    <input type="text" id="swal-usr" class="swal2-input" placeholder="Username" maxlength="10">
+                    <input type="password" id="swal-pass" class="swal2-input" placeholder="Password" maxlength="10">
+                    <p class="text-xs text-gray-500 mt-2">* อักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัว</p>
+                `,
+                confirmButtonText: 'เข้าสู่ระบบ',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const usr = document.getElementById('swal-usr').value;
+                    const pass = document.getElementById('swal-pass').value;
+                    const regex = /^[a-zA-Z0-9]{1,10}$/; 
+                    
+                    if (!regex.test(usr) || !regex.test(pass)) {
+                        Swal.showValidationMessage('ชื่อผู้ใช้และรหัสผ่านต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น');
+                        return false;
+                    }
+                    return { usr, pass };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    processLogin(result.value.usr, result.value.pass);
+                }
+            });
+        });
+
+        function processLogin(username, password) {
+            Swal.fire({
+                title: 'กำลังตรวจสอบข้อมูล...',
+                text: 'กรุณารอสักครู่ค่ะ',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', username, password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.success){
+                    currentUser = data.user;
+                    localStorage.setItem('ns_user', JSON.stringify(currentUser));
+                    applyLoginState();
+                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', text: 'ยินดีต้อนรับ ' + currentUser.admin_name, timer: 2000, showConfirmButton: false });
+                    clickHome(); 
+                } else {
+                    Swal.fire('ข้อผิดพลาด', data.message, 'error');
+                }
+            })
+            .catch(()=> Swal.fire('การเชื่อมต่อล้มเหลว', 'กรุณาตรวจสอบ URL ของ Google Apps Script', 'error'));
+        }
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('ns_user');
+            document.getElementById('btnLoginPanel').classList.remove('hidden');
+            document.getElementById('userPanel').classList.add('hidden');
+            document.getElementById('adminMenu').classList.add('hidden');
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+            clickHome();
+            Toast.fire({ icon: 'info', title: 'ออกจากระบบเรียบร้อย' });
+        });
+
+        function applyLoginState() {
+            document.getElementById('btnLoginPanel').classList.add('hidden');
+            document.getElementById('userPanel').classList.remove('hidden');
+            document.getElementById('txtUserName').innerText = currentUser.admin_name;
+            document.getElementById('adminMenu').classList.remove('hidden');
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+        }
+
+        function switchTab(tabId) {
+            ['dashboard', 'manageData', 'manageAccount'].forEach(id => {
+                document.getElementById('tab-' + id).classList.add('hidden');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+        }
+
+        function clickHome() {
+            loadActivities();
+            switchTab('dashboard');
+        }
+
+        function loadActivities() {
+            Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getActivities' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.success){
+                    allActivities = data.data;
+                    currentPage = 1; 
+                    renderTable();
+                    Swal.close();
+                }
+            })
+            .catch(()=> Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error'));
+        }
+
+        function renderTable() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedItems = allActivities.slice(start, end);
+            
+            let html = '';
+            paginatedItems.forEach((act, idx) => {
+                html += `
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="px-4 py-3 whitespace-nowrap">${start + idx + 1}</td>
+                    <td class="px-4 py-3">
+                        <div class="font-bold text-gray-800">${act.activity_name || '-'}</div>
+                        <div class="text-xs text-gray-500">โครงการ: ${act.project_name || '-'}</div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-blue-700">${act.budget_type || '-'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right font-medium">${fmtMoney(act.budget_received)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right font-bold ${act.budget_balance < 0 ? 'text-red-600' : 'text-green-600'}">${fmtMoney(act.budget_balance)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center admin-only ${currentUser ? '' : 'hidden'}">
+                        <button onclick="editActivity(${act.rowIndex})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded text-xs mx-1 shadow transition">แก้ไข</button>
+                        <button onclick="openCutBudget(${act.rowIndex})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs mx-1 shadow transition">ตัดงบ</button>
+                    </td>
+                </tr>`;
+            });
+            
+            document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="6" class="text-center py-4 text-gray-500">ไม่มีข้อมูล</td></tr>';
+            document.getElementById('pageInfo').innerText = `แสดงหน้า ${currentPage} จาก ${Math.ceil(allActivities.length / itemsPerPage) || 1}`;
+        }
+
+        function prevPage() { if(currentPage > 1) { currentPage--; renderTable(); } }
+        function nextPage() { if(currentPage < Math.ceil(allActivities.length / itemsPerPage)) { currentPage++; renderTable(); } }
+
+        function clearForm() {
+            ['inpRowIndex', 'inpProjectId', 'inpProjectName', 'inpActivityId', 'inpActivityName', 'inpTeacher', 'inpBudgetType', 'inpBudgetReceived', 'inpBudgetBalance'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            handleBudgetTypeChange(); 
+        }
+
+        function handleBudgetTypeChange() {
+            const type = document.getElementById('inpBudgetType').value;
+            const receivedInput = document.getElementById('inpBudgetReceived');
+            
+            if (type === 'ไม่ใช้งบประมาณ') {
+                receivedInput.value = '0';
+                receivedInput.readOnly = true;
+                receivedInput.classList.add('bg-gray-100', 'text-gray-500');
+            } else {
+                receivedInput.readOnly = false;
+                receivedInput.classList.remove('bg-gray-100', 'text-gray-500');
+            }
+        }
+
+        function openAddActivity() {
+            clearForm(); 
+            
+            document.getElementById('formTitle').innerText = 'เพิ่มโครงการ/กิจกรรมใหม่';
+            document.getElementById('btnSaveData').innerText = 'บันทึกข้อมูล';
+            
+            document.getElementById('divProjectId').classList.remove('hidden');
+            document.getElementById('divActivityId').classList.remove('hidden');
+            document.getElementById('divTeacher').classList.remove('hidden');
+            document.getElementById('divBudgetBalance').classList.add('hidden'); 
+            
+            switchTab('manageData');
+        }
+
+        function editActivity(rowIndex) {
+            const act = allActivities.find(a => a.rowIndex === rowIndex);
+            if (!act) return;
+
+            document.getElementById('formTitle').innerText = 'แก้ไขข้อมูลกิจกรรม';
+            document.getElementById('btnSaveData').innerText = 'ยืนยัน';
+            document.getElementById('inpRowIndex').value = act.rowIndex;
+            
+            document.getElementById('inpProjectId').value = act.project_id;
+            document.getElementById('inpProjectName').value = act.project_name;
+            document.getElementById('inpActivityId').value = act.activity_id;
+            document.getElementById('inpActivityName').value = act.activity_name;
+            document.getElementById('inpTeacher').value = act.teacher;
+            
+            document.getElementById('inpBudgetType').value = act.budget_type;
+            handleBudgetTypeChange(); 
+            
+            document.getElementById('inpBudgetReceived').value = act.budget_received;
+            document.getElementById('inpBudgetBalance').value = act.budget_balance;
+
+            document.getElementById('divProjectId').classList.add('hidden');
+            document.getElementById('divActivityId').classList.add('hidden');
+            document.getElementById('divTeacher').classList.add('hidden');
+            document.getElementById('divBudgetBalance').classList.remove('hidden');
+            
+            switchTab('manageData');
+        }
+
+        function saveActivity() {
+            const rowIndex = document.getElementById('inpRowIndex').value;
+            
+            const receivedVal = parseFloat(document.getElementById('inpBudgetReceived').value) || 0;
+            const balanceVal = rowIndex ? (parseFloat(document.getElementById('inpBudgetBalance').value) || 0) : receivedVal;
+            
+            if (rowIndex && balanceVal > receivedVal) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ถูกต้อง',
+                    text: 'งบประมาณคงเหลือ ต้องไม่มากกว่างบประมาณที่ได้รับจัดสรรค่ะ'
+                });
+                return; 
+            }
+
+            const data = {
+                rowIndex: rowIndex,
+                project_id: document.getElementById('inpProjectId').value,
+                project_name: document.getElementById('inpProjectName').value,
+                activity_id: document.getElementById('inpActivityId').value,
+                activity_name: document.getElementById('inpActivityName').value,
+                teacher: document.getElementById('inpTeacher').value,
+                budget_type: document.getElementById('inpBudgetType').value,
+                budget_received: receivedVal,
+                budget_balance: balanceVal
+            };
+
+            const action = rowIndex ? 'updateActivity' : 'addActivity';
+            
+            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: action, username: currentUser.username, password: currentUser.password, data: data })
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.success){
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    loadActivities();
+                    switchTab('dashboard'); 
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            });
+        }
+
+        function openCutBudget(rowIndex) {
+            const act = allActivities.find(a => a.rowIndex === rowIndex);
+            if (!act) return;
+
+            Swal.fire({
+                title: 'ตัดยอดงบประมาณ',
+                html: `
+                    <p class="text-sm mb-2 text-left">กิจกรรม: <b>${act.activity_name}</b></p>
+                    <p class="text-sm mb-4 text-left text-green-600">ยอดคงเหลือปัจจุบัน: <b>${fmtMoney(act.budget_balance)} บาท</b></p>
+                    
+                    <div class="mb-3 text-left">
+                        <label class="block text-sm mb-1 font-medium text-gray-700">จำนวนเงินที่เบิกจ่าย (บาท)</label>
+                        <input type="number" id="cut-amount" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" placeholder="ระบุจำนวนเงิน">
+                    </div>
+                    <div class="text-left">
+                        <label class="block text-sm mb-1 font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
+                        <input type="text" id="cut-details" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" placeholder="ระบุรายละเอียด เช่น ค่าวัสดุ, ค่าตอบแทน">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยันการตัดงบ',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#ef4444',
+                preConfirm: () => {
+                    const amt = parseFloat(document.getElementById('cut-amount').value);
+                    const details = document.getElementById('cut-details').value;
+                    
+                    if (!amt || amt <= 0) { Swal.showValidationMessage('กรุณาระบุจำนวนเงินให้ถูกต้อง'); return false; }
+                    if (amt > act.budget_balance) { Swal.showValidationMessage('ยอดเงินไม่เพียงพอ!'); return false; }
+                    return { amount: amt, details: details };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังบันทึกการตัดงบ...', didOpen: () => Swal.showLoading() });
+                    fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ 
+                            action: 'deductBudget', 
+                            username: currentUser.username, 
+                            password: currentUser.password, 
+                            data: { rowIndex: act.rowIndex, amount: result.value.amount, details: result.value.details }
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if(res.success){
+                            Swal.fire('สำเร็จ', res.message, 'success');
+                            loadActivities();
+                        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                    });
+                }
+            });
+        }
+
+        function editAccountData() {
+            document.getElementById('inpAccMode').value = 'edit';
+            document.getElementById('accFormTitle').innerText = 'จัดการบัญชีผู้ใช้';
+            document.getElementById('inpAccUser').value = currentUser.username || '';
+            document.getElementById('inpAccPass').value = currentUser.password || '';
+            document.getElementById('inpAccName').value = currentUser.admin_name || '';
+            
+            const roleSelect = document.getElementById('inpAccRole');
+            if(currentUser.role === 'Admin' || currentUser.role === 'Teacher') {
+                roleSelect.value = currentUser.role;
+            } else {
+                roleSelect.value = 'Teacher'; 
+            }
+
+            document.getElementById('inpAccDept').value = currentUser.department || '';
+            switchTab('manageAccount');
+        }
+
+        function openAddUser() {
+            document.getElementById('inpAccMode').value = 'add';
+            document.getElementById('accFormTitle').innerText = 'เพิ่มบัญชีผู้ใช้ใหม่';
+            document.getElementById('inpAccUser').value = '';
+            document.getElementById('inpAccPass').value = '';
+            document.getElementById('inpAccName').value = '';
+            document.getElementById('inpAccRole').value = 'Teacher';
+            document.getElementById('inpAccDept').value = '';
+            switchTab('manageAccount');
+        }
+
+        function saveAccountData() {
+            const mode = document.getElementById('inpAccMode').value;
+            const usr = document.getElementById('inpAccUser').value;
+            const pass = document.getElementById('inpAccPass').value;
+            const name = document.getElementById('inpAccName').value;
+            const role = document.getElementById('inpAccRole').value;
+            const dept = document.getElementById('inpAccDept').value;
+            
+            const regex = /^[a-zA-Z0-9]{1,10}$/;
+            if (!regex.test(usr) || !regex.test(pass)) {
+                Swal.fire('ไม่สามารถบันทึกได้', 'ชื่อผู้ใช้และรหัสผ่านต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น และห้ามเว้นวรรค', 'warning');
+                return;
+            }
+
+            const newData = { username: usr, password: pass, admin_name: name, role: role, department: dept };
+            const action = mode === 'add' ? 'addUser' : 'updateUser';
+            const loadingMsg = mode === 'add' ? 'กำลังเพิ่มบัญชีผู้ใช้...' : 'กำลังอัปเดตข้อมูลบัญชี...';
+
+            Swal.fire({ title: loadingMsg, didOpen: () => Swal.showLoading() });
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: action, 
+                    username: currentUser.username, 
+                    password: currentUser.password, 
+                    newData: newData 
+                })
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.success){
+                    if (mode === 'edit') {
+                        currentUser = { ...currentUser, ...newData };
+                        localStorage.setItem('ns_user', JSON.stringify(currentUser));
+                        applyLoginState();
+                    }
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    clickHome();
+                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            });
+        }
+
+        // 🌟 ระบบสร้างและจัดพิมพ์รายงาน PDF 
+        function generatePrintPDF() {
+            if (allActivities.length === 0) {
+                Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับจัดพิมพ์ค่ะ', 'warning');
+                return;
+            }
+
+            const printContainer = document.getElementById('printContainer');
+            let printHTML = '';
+            const itemsPerPagePrint = 10; // ลดเหลือ 10 บรรทัดต่อหน้าตามที่ขอค่ะ
+            const totalPages = Math.ceil(allActivities.length / itemsPerPagePrint);
+
+            for (let p = 0; p < totalPages; p++) {
+                const start = p * itemsPerPagePrint;
+                const pageItems = allActivities.slice(start, start + itemsPerPagePrint);
+                
+                printHTML += `
+                <div class="print-page-break">
+                    <!-- หัวรายงาน (แก้สลับบรรทัดโรงเรียนขึ้นก่อน) -->
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" style="width: 80px; height: 80px; margin: 0 auto; display: block;">
+                        <div style="font-size: 18pt; font-weight: bold; margin-top: 5px;">โรงเรียนนราสิกขาลัย</div>
+                        <div style="font-size: 18pt; font-weight: bold;">รายงานสรุปงบประมาณโครงการและกิจกรรม ปีการศึกษา 2569</div>
+                    </div>
+                    
+                    <!-- กล่องห่อหุ้มตารางและลายเซ็น -->
+                    <div class="print-wrapper">
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>ลำดับ</th>
+                                    <th>ชื่อกิจกรรม</th>
+                                    <th>ประเภทงบประมาณ</th>
+                                    <th>งบประมาณที่ได้รับจัดสรร</th>
+                                    <th>งบประมาณคงเหลือ</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                pageItems.forEach((act, idx) => {
+                    printHTML += `
+                        <tr>
+                            <td style="text-align: center;">${start + idx + 1}</td>
+                            <td style="padding-left: 5px; white-space: normal;">${act.activity_name || '-'}</td>
+                            <td style="text-align: center;">${act.budget_type || '-'}</td>
+                            <td style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_received)}</td>
+                            <td style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_balance)}</td>
+                        </tr>`;
+                });
+
+                // เติมบรรทัดว่างให้ครบ 10 บรรทัด
+                const emptyRows = itemsPerPagePrint - pageItems.length;
+                for(let e = 0; e < emptyRows; e++) {
+                    printHTML += `
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>`;
+                }
+                
+                printHTML += `</tbody></table>`;
+                
+                // ลายเซ็น (ลดระยะห่างระหว่าง ลงชื่อ กับ ผู้รายงาน ให้สวยงาม)
+                printHTML += `
+                        <div style="text-align: right; margin-top: 10px; padding-right: 15px;">
+                            <div style="display: inline-block; text-align: center;">
+                                <div style="margin-bottom: 2px;">ลงชื่อ........................................</div>
+                                <div>ผู้รายงาน</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            printContainer.innerHTML = printHTML;
+            
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
