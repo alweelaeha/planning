@@ -8,9 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* 🌟 ป้องกันการคลุมดำข้อความ (Anti-Copy) */
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: #f3f4f6; 
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        input, select, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         
         /* สไตล์สำหรับการพิมพ์รายงาน (Print) */
@@ -33,12 +44,13 @@
             .print-table { 
                 width: 100%; 
                 border-collapse: collapse; 
-                margin-top: 15px; 
+                margin-top: 4px; /* ทำให้ระยะห่างตารางเท่ากับระยะบรรทัดด้านบน */
             }
             .print-table th, .print-table td { 
                 border: 1px solid #000; 
-                padding: 2px 8px; 
+                padding: 1px 6px; /* บีบความสูงของเซลล์ให้แคบลงเพื่อยัด 20 บรรทัด */
                 font-size: 14pt; 
+                line-height: 1.1; /* กระชับความสูงตัวอักษร */
             }
             .print-table th { font-weight: bold; text-align: center; background-color: #f9f9f9; }
             
@@ -205,7 +217,7 @@
 
     </main>
 
-    <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-auto">
+    <footer class="bg-white text-gray-500 text-center py-4 mt-auto">
         <p class="text-sm">พัฒนาโดยฝ่ายแผนงานโรงเรียนนราสิกขาลัย &copy; 2026</p>
     </footer>
 
@@ -214,7 +226,6 @@
         // 🌟 ป้องกันการคลิกขวาและการดูซอร์สโค้ด (แต่ยังคลุมดำแล้วกด Ctrl+C ได้)
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('keydown', event => {
-            // ปิดการกด F12, Ctrl+Shift+I, Ctrl+Shift+J (DevTools) และ Ctrl+U (View Source)
             if (event.key === 'F12' || 
                (event.ctrlKey && event.shiftKey && ['I', 'J'].includes(event.key.toUpperCase())) ||
                (event.ctrlKey && ['U'].includes(event.key.toUpperCase()))) {
@@ -621,7 +632,7 @@
 
             const printContainer = document.getElementById('printContainer');
             let printHTML = '';
-            const itemsPerPagePrint = 15; // 🌟 เปลี่ยนเป็น 15 บรรทัดต่อหน้าตามที่ขอค่ะ
+            const itemsPerPagePrint = 20; // 🌟 ปรับเพิ่มเป็น 20 บรรทัดต่อหน้า
             const totalPages = Math.ceil(allActivities.length / itemsPerPagePrint);
 
             for (let p = 0; p < totalPages; p++) {
@@ -630,14 +641,16 @@
                 
                 printHTML += `
                 <div class="print-page-break">
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" style="width: 60px; height: 60px; margin: 0 auto; display: block; object-fit: contain;">
-                        <div style="font-size: 18pt; font-weight: bold; margin-top: 5px; line-height: 1.2;">โรงเรียนนราสิกขาลัย</div>
+                    <!-- หัวรายงาน ปรับ margin ให้กระชับบรรทัดพอดีกัน -->
+                    <div style="text-align: center; margin-bottom: 0;">
+                        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" style="width: 55px; height: 55px; margin: 0 auto; display: block; object-fit: contain;">
+                        <div style="font-size: 18pt; font-weight: bold; margin-top: 2px; line-height: 1.2;">โรงเรียนนราสิกขาลัย</div>
                         <div style="font-size: 16pt; font-weight: bold; line-height: 1.2;">รายงานสรุปงบประมาณโครงการและกิจกรรม ปีการศึกษา 2569</div>
                     </div>
                     
                     <div class="print-wrapper">
-                        <table class="print-table">
+                        <!-- ปรับระยะขอบบนของตารางให้เท่ากับระยะบรรทัดปกติ -->
+                        <table class="print-table" style="margin-top: 4px;">
                             <thead>
                                 <tr>
                                     <th class="col-fit">ลำดับ</th>
