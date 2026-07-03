@@ -11,7 +11,7 @@
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: #f3f4f6; 
-            /* อนุญาตให้คลุมดำข้อความได้เพื่อให้อาบี Copy ได้ */
+            /* 🌟 ปลดล็อก user-select เพื่อให้อาบีลากคลุมดำและคัดลอกข้อความได้ */
         }
         
         /* สไตล์สำหรับการพิมพ์รายงาน (Print) */
@@ -52,26 +52,26 @@
 <body class="flex flex-col min-h-screen">
     <div id="printContainer" style="display: none;"></div>
 
-    <!-- Header หน้าเว็บ ปรับโครงสร้างใหม่ให้ตอบโจทย์มือถือและ Tablet -->
-    <header class="bg-white shadow-md p-6 text-center">
-        <!-- ขยายโลโก้ให้ใหญ่ขึ้น -->
-        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" alt="โลโก้โรงเรียนนราสิกขาลัย" class="w-36 h-36 mx-auto mb-4 object-contain">
+    <header class="bg-white shadow-md p-6 text-center relative">
+        <div class="absolute top-6 right-6 flex flex-col items-end">
+            <button id="btnLoginPanel" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition">
+                Log in
+            </button>
+        </div>
         
-        <!-- ปรับข้อความ 2 บรรทัดให้มีขนาดและรูปแบบเดียวกัน -->
+        <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" alt="โลโก้โรงเรียนนราสิกขาลัย" class="w-36 h-36 mx-auto mb-4 object-contain">
         <h1 class="text-3xl font-bold text-gray-800">ระบบจัดการงบประมาณโครงการและกิจกรรม</h1>
         <h1 class="text-3xl font-bold text-gray-800 mt-2">โรงเรียนนราสิกขาลัย</h1>
 
-        <!-- ย้ายแผง User ลงมาด้านล่าง ตรงกลาง เพื่อไม่ให้ทับซ้อนเมื่อจอเล็กลง -->
-        <div class="mt-6 flex flex-col items-center justify-center">
-            <button id="btnLoginPanel" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg shadow transition">
-                เข้าสู่ระบบ (Log in)
-            </button>
-            <div id="userPanel" class="hidden flex flex-col items-center space-y-3">
-                <span id="txtUserName" class="text-blue-800 font-bold text-xl bg-blue-50 px-4 py-1 rounded-full border border-blue-200"></span>
-                <div class="flex flex-wrap justify-center gap-2">
-                    <button onclick="openAddUser()" class="bg-green-500 hover:bg-green-600 text-white py-1.5 px-4 rounded shadow transition text-sm font-medium">เพิ่มบัญชีผู้ใช้</button>
-                    <button onclick="editAccountData()" class="bg-orange-500 hover:bg-orange-600 text-white py-1.5 px-4 rounded shadow transition text-sm font-medium">จัดการบัญชีผู้ใช้</button>
-                    <button id="btnLogout" class="bg-red-500 hover:bg-red-600 text-white py-1.5 px-4 rounded shadow transition text-sm font-medium">ออกจากระบบ</button>
+        <!-- 🌟 ย้ายแผง User ลงมาด้านล่าง ตรงกลาง เพื่อไม่ให้ทับซ้อนเมื่อจอเล็กลง -->
+        <div class="mt-6 flex flex-col items-center justify-center w-full">
+            <div id="userPanelInfo" class="hidden flex flex-col items-center space-y-4 w-full max-w-2xl">
+                <!-- 🌟 ข้อความต้อนรับ -->
+                <span id="txtUserNameDisplay" class="text-blue-800 font-bold text-lg md:text-xl bg-blue-50 px-6 py-2 rounded-full border border-blue-200 shadow-sm text-center w-full md:w-auto"></span>
+                <div class="flex flex-wrap justify-center gap-3 w-full">
+                    <button onclick="openAddUser()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-5 rounded shadow transition text-sm md:text-base font-medium flex-1 md:flex-none">เพิ่มบัญชีผู้ใช้</button>
+                    <button onclick="editAccountData()" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-5 rounded shadow transition text-sm md:text-base font-medium flex-1 md:flex-none">จัดการบัญชีผู้ใช้</button>
+                    <button id="btnLogout" class="bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded shadow transition text-sm md:text-base font-medium flex-1 md:flex-none">ออกจากระบบ</button>
                 </div>
             </div>
         </div>
@@ -86,36 +86,64 @@
         </div>
 
         <!-- Dashboard -->
-        <div id="tab-dashboard" class="bg-white rounded-xl shadow overflow-hidden">
-            <div class="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
-                <h3 class="text-lg font-bold">สรุปงบประมาณกิจกรรมทั้งหมด</h3>
-                <button onclick="clickHome()" class="text-sm bg-white text-blue-800 px-3 py-1 rounded hover:bg-gray-100 font-bold shadow">รีเฟรชข้อมูล</button>
-            </div>
+        <div id="tab-dashboard">
             
-            <div class="overflow-x-auto p-4">
-                <table class="min-w-full divide-y divide-gray-200 border">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ลำดับ</th>
-                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ชื่อกิจกรรม (ชื่อโครงการ)</th>
-                            <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ประเภทงบประมาณ</th>
-                            <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">จัดสรร (บาท)</th>
-                            <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">คงเหลือ (บาท)</th>
-                            <th class="px-4 py-3 text-center text-sm font-bold text-gray-700 admin-only hidden">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="bg-white divide-y divide-gray-200 text-sm">
-                        <!-- Content -->
-                    </tbody>
-                </table>
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-3 border-l-4 border-blue-600 pl-3">สรุปข้อมูลตามประเภทงบประมาณ</h3>
+                <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- การ์ดสรุปจะถูกสร้างที่นี่โดย JS -->
+                </div>
             </div>
-            
-            <!-- Pagination -->
-            <div class="px-6 py-4 bg-gray-50 flex justify-between items-center border-t">
-                <span id="pageInfo" class="text-gray-600 text-sm font-medium">แสดงหน้า 1</span>
-                <div class="space-x-2">
-                    <button onclick="prevPage()" class="px-4 py-1.5 border rounded hover:bg-gray-200 text-sm font-medium shadow-sm transition">ก่อนหน้า</button>
-                    <button onclick="nextPage()" class="px-4 py-1.5 border rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium shadow-sm transition">หน้าต่อไป</button>
+
+            <div class="bg-white rounded-xl shadow overflow-hidden">
+                <div class="bg-blue-800 text-white px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <h3 class="text-lg font-bold">สรุปงบประมาณกิจกรรมทั้งหมด</h3>
+                    <button onclick="clickHome()" class="text-sm bg-white text-blue-800 px-4 py-2 rounded hover:bg-gray-100 font-bold shadow w-full md:w-auto">รีเฟรชข้อมูล</button>
+                </div>
+
+                <!-- แผงค้นหาและกรองข้อมูล -->
+                <div class="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-3 items-center">
+                    <div class="flex-grow min-w-[200px]">
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200" placeholder="🔍 ค้นหาชื่อโครงการ หรือ กิจกรรม...">
+                    </div>
+                    <div class="flex-grow min-w-[200px]">
+                        <select id="filterProject" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
+                            <option value="">-- กรองตามชื่อโครงการทั้งหมด --</option>
+                        </select>
+                    </div>
+                    <div class="flex-grow min-w-[200px]">
+                        <select id="filterBudgetType" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
+                            <option value="">-- กรองตามประเภทงบทั้งหมด --</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto p-4">
+                    <table class="min-w-full divide-y divide-gray-200 border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">ลำดับ</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-gray-700">ชื่อกิจกรรม (ชื่อโครงการ)</th>
+                                <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">ประเภทงบประมาณ</th>
+                                <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">จัดสรร (บาท)</th>
+                                <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">ใช้ไป (บาท)</th>
+                                <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">คงเหลือ (บาท)</th>
+                                <th class="px-4 py-3 text-center text-sm font-bold text-gray-700 admin-only hidden">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="bg-white divide-y divide-gray-200 text-sm">
+                            <!-- Content -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="px-6 py-4 bg-gray-50 flex justify-between items-center border-t">
+                    <span id="pageInfo" class="text-gray-600 text-sm font-medium">แสดงหน้า 1</span>
+                    <div class="space-x-2">
+                        <button onclick="prevPage()" class="px-4 py-1.5 border rounded hover:bg-gray-200 text-sm font-medium shadow-sm transition">ก่อนหน้า</button>
+                        <button onclick="nextPage()" class="px-4 py-1.5 border rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium shadow-sm transition">หน้าต่อไป</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,13 +245,12 @@
 
     <!-- Script -->
     <script>
-        // 🌟 ป้องกันการคลิกขวาเปิดเมนู (แต่ยังคลุมดำ Ctrl+C ได้)
+        // 🌟 ป้องกันการคลิกขวาและการใช้ปุ่มลัดแอบดูโค้ด (Anti-Inspect)
         document.addEventListener('contextmenu', event => {
             event.preventDefault();
             Toast.fire({ icon: 'warning', title: 'ระบบป้องกันการคลิกขวาค่ะ' });
         });
         
-        // 🌟 ป้องกันการใช้ปุ่มลัดแอบดูโค้ด (F12, Ctrl+Shift+I, Ctrl+U)
         document.addEventListener('keydown', event => {
             if (event.key === 'F12' || 
                (event.ctrlKey && event.shiftKey && ['I', 'J', 'C'].includes(event.key.toUpperCase())) ||
@@ -236,6 +263,7 @@
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby2dfS5G-2AIYJEONArfX2rVtZSXRthXzmlxkm71WhOMJUhnQPxxTog9In3b8l-SVOH/exec';
 
         let allActivities = [];
+        let filteredActivities = [];
         let currentPage = 1;
         const itemsPerPage = 20; 
         let currentUser = null;
@@ -247,7 +275,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 🌟 ตรวจสอบว่ามี Session ค้างอยู่ไหม (จำผู้ใช้ = localStorage, ไม่จำ = sessionStorage)
             const savedUser = sessionStorage.getItem('ns_user') || localStorage.getItem('ns_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -262,7 +289,6 @@
                 html: `
                     <input type="text" id="swal-usr" class="swal2-input" placeholder="Username" maxlength="10">
                     
-                    <!-- 🌟 กล่องรหัสผ่านพร้อมไอคอนเปิด/ปิดตา -->
                     <div style="position: relative; max-width: 100%; width: 17em; margin: 1em auto 0; display: flex; justify-content: center;">
                         <input type="password" id="swal-pass" class="swal2-input" style="margin: 0; width: 100%; padding-right: 2.5rem;" placeholder="Password" maxlength="10">
                         <span id="toggle-pass" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; user-select: none;">
@@ -272,7 +298,6 @@
                     
                     <p class="text-xs text-gray-500 mt-2">* อักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัว</p>
                     
-                    <!-- 🌟 จัดกึ่งกลางตัวเลือกจำข้อมูลผู้ใช้ -->
                     <div class="mt-4 flex justify-center w-full">
                         <label class="flex items-center space-x-2 cursor-pointer">
                             <input type="checkbox" id="swal-remember" class="w-4 h-4 text-blue-600 rounded">
@@ -281,18 +306,14 @@
                     </div>
                 `,
                 didOpen: () => {
-                    // 🌟 ระบบกดสลับลูกตาซ่อน/แสดงรหัสผ่าน
                     const toggleBtn = document.getElementById('toggle-pass');
                     const passInput = document.getElementById('swal-pass');
                     toggleBtn.addEventListener('click', () => {
                         const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
                         passInput.setAttribute('type', type);
-                        
                         if (type === 'password') {
-                            // ตาเปิด (ซ่อนรหัส)
                             toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
                         } else {
-                            // ตาปิดมีขีดฆ่า (โชว์รหัส)
                             toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
                         }
                     });
@@ -304,7 +325,6 @@
                     const pass = document.getElementById('swal-pass').value;
                     const remember = document.getElementById('swal-remember').checked;
                     const regex = /^[a-zA-Z0-9]{1,10}$/; 
-                    
                     if (!regex.test(usr) || !regex.test(pass)) {
                         Swal.showValidationMessage('ชื่อผู้ใช้และรหัสผ่านต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น');
                         return false;
@@ -319,12 +339,7 @@
         });
 
         function processLogin(username, password, rememberMe) {
-            Swal.fire({
-                title: 'กำลังตรวจสอบข้อมูล...',
-                text: 'กรุณารอสักครู่ค่ะ',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
+            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'login', username, password })
@@ -333,7 +348,6 @@
             .then(data => {
                 if(data.success){
                     currentUser = data.user;
-                    // 🌟แยกว่าจะจำผู้ใช้ถาวร หรือแค่ชั่วคราว
                     if (rememberMe) {
                         localStorage.setItem('ns_user', JSON.stringify(currentUser));
                         sessionStorage.removeItem('ns_user');
@@ -344,21 +358,16 @@
                     applyLoginState();
                     Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', text: 'ยินดีต้อนรับ ' + currentUser.admin_name, timer: 2000, showConfirmButton: false });
                     clickHome(); 
-                } else {
-                    Swal.fire('ข้อผิดพลาด', data.message, 'error');
-                }
-            })
-            .catch(()=> Swal.fire('การเชื่อมต่อล้มเหลว', 'กรุณาตรวจสอบ URL ของ Google Apps Script', 'error'));
+                } else { Swal.fire('ข้อผิดพลาด', data.message, 'error'); }
+            }).catch(()=> Swal.fire('การเชื่อมต่อล้มเหลว', 'กรุณาตรวจสอบ URL ของ Google Apps Script', 'error'));
         }
 
         document.getElementById('btnLogout').addEventListener('click', () => {
             currentUser = null;
-            // 🌟 ล้างข้อมูลทั้ง 2 แบบตอน Logout
             localStorage.removeItem('ns_user');
             sessionStorage.removeItem('ns_user');
-            
             document.getElementById('btnLoginPanel').classList.remove('hidden');
-            document.getElementById('userPanel').classList.add('hidden');
+            document.getElementById('userPanelInfo').classList.add('hidden');
             document.getElementById('adminMenu').classList.add('hidden');
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             clickHome();
@@ -367,8 +376,9 @@
 
         function applyLoginState() {
             document.getElementById('btnLoginPanel').classList.add('hidden');
-            document.getElementById('userPanel').classList.remove('hidden');
-            document.getElementById('txtUserName').innerText = "ผู้ใช้งาน: " + currentUser.admin_name;
+            document.getElementById('userPanelInfo').classList.remove('hidden');
+            // 🌟 แก้ไขรูปแบบข้อความต้อนรับ
+            document.getElementById('txtUserNameDisplay').innerText = `ยินดีต้อนรับคุณครู${currentUser.admin_name} (${currentUser.role})`;
             document.getElementById('adminMenu').classList.remove('hidden');
             document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
         }
@@ -381,13 +391,16 @@
         }
 
         function clickHome() {
+            // ล้างค่าในช่องกรองข้อมูลทั้งหมดเวลากดปุ่มหน้าหลัก/รีเฟรช
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterBudgetType').value = '';
             loadActivities();
             switchTab('dashboard');
         }
 
         function loadActivities() {
             Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
             fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'getActivities' })
@@ -396,30 +409,163 @@
             .then(data => {
                 if(data.success){
                     allActivities = data.data;
-                    currentPage = 1; 
-                    renderTable();
+                    populateFilters(); 
+                    applyFilters(); // ให้ระบบกรองข้อมูลและแสดงผลทันที เพื่อไม่ให้ Filter หลุด
                     Swal.close();
                 }
             })
             .catch(()=> Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error'));
         }
 
+        function populateFilters() {
+            const uniqueProjectsMap = new Map();
+            allActivities.forEach(a => {
+                const pName = String(a.project_name || '').trim();
+                if (pName && !uniqueProjectsMap.has(pName)) {
+                    uniqueProjectsMap.set(pName, String(a.project_id || ''));
+                }
+            });
+            
+            // เรียงชื่อโครงการตามรหัสโครงการ
+            const projects = Array.from(uniqueProjectsMap.entries())
+                                 .sort((a, b) => a[1].localeCompare(b[1], undefined, {numeric: true}))
+                                 .map(entry => entry[0]);
+            
+            const projSelect = document.getElementById('filterProject');
+            const currentProj = projSelect.value;
+            projSelect.innerHTML = '<option value="">-- กรองตามชื่อโครงการทั้งหมด --</option>';
+            projects.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                projSelect.appendChild(opt);
+            });
+            projSelect.value = currentProj;
+
+            const customOrder = [
+                "เงินอุดหนุนรายหัว", 
+                "เงินกิจกรรมพัฒนาผู้เรียน", 
+                "เงินรายได้สถานศึกษา", 
+                "เงินสมทบห้องพิเศษวิทย์", 
+                "เงินสมทบห้อง 4 เหล่าทัพ", 
+                "ไม่ใช้งบประมาณ"
+            ];
+            const types = [...new Set(allActivities.map(a => String(a.budget_type || '').trim()).filter(Boolean))];
+            types.sort((a, b) => {
+                const indexA = customOrder.indexOf(a);
+                const indexB = customOrder.indexOf(b);
+                const orderA = indexA !== -1 ? indexA : 999;
+                const orderB = indexB !== -1 ? indexB : 999;
+                return orderA - orderB;
+            });
+
+            const typeSelect = document.getElementById('filterBudgetType');
+            const currentType = typeSelect.value;
+            typeSelect.innerHTML = '<option value="">-- กรองตามประเภทงบทั้งหมด --</option>';
+            types.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                typeSelect.appendChild(opt);
+            });
+            typeSelect.value = currentType;
+        }
+
+        function applyFilters() {
+            const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const projFilter = (document.getElementById('filterProject').value || '').trim();
+            const typeFilter = (document.getElementById('filterBudgetType').value || '').trim();
+
+            filteredActivities = allActivities.filter(act => {
+                // แปลงข้อมูลจาก Sheet เป็น String ก่อนเสมอ ป้องกัน Error กรณีข้อมูลถูกอ่านมาเป็นตัวเลข
+                const pName = String(act.project_name || '').toLowerCase();
+                const aName = String(act.activity_name || '').toLowerCase();
+                const exactPName = String(act.project_name || '').trim();
+                const exactBType = String(act.budget_type || '').trim();
+
+                const matchSearch = pName.includes(search) || aName.includes(search);
+                const matchProj = projFilter ? exactPName === projFilter : true;
+                const matchType = typeFilter ? exactBType === typeFilter : true;
+                
+                return matchSearch && matchProj && matchType;
+            });
+
+            currentPage = 1; 
+            renderSummary();
+            renderTable();
+        }
+
+        function renderSummary() {
+            const summaryContainer = document.getElementById('summaryCards');
+            const summaryData = {};
+            let totalAllReceived = 0, totalAllUsed = 0, totalAllBalance = 0;
+
+            filteredActivities.forEach(act => {
+                const type = String(act.budget_type || 'ไม่ได้ระบุประเภท').trim();
+                const used = (act.budget_received || 0) - (act.budget_balance || 0);
+                
+                if(!summaryData[type]) {
+                    summaryData[type] = { received: 0, used: 0, balance: 0 };
+                }
+                
+                summaryData[type].received += (act.budget_received || 0);
+                summaryData[type].used += used;
+                summaryData[type].balance += (act.budget_balance || 0);
+
+                totalAllReceived += (act.budget_received || 0);
+                totalAllUsed += used;
+                totalAllBalance += (act.budget_balance || 0);
+            });
+
+            let html = '';
+            html += `
+            <div class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl shadow p-4 text-white">
+                <h4 class="font-bold text-lg border-b border-blue-400 pb-2 mb-2">รวมทุกประเภทงบประมาณ</h4>
+                <div class="flex justify-between text-sm mb-1"><span>จัดสรร:</span> <span class="font-semibold">${fmtMoney(totalAllReceived)}</span></div>
+                <div class="flex justify-between text-sm mb-1 text-blue-100"><span>ใช้ไป:</span> <span class="font-semibold">${fmtMoney(totalAllUsed)}</span></div>
+                <div class="flex justify-between text-base font-bold mt-2 pt-2 border-t border-blue-400"><span>คงเหลือ:</span> <span>${fmtMoney(totalAllBalance)}</span></div>
+            </div>`;
+
+            const customOrder = ["เงินอุดหนุนรายหัว", "เงินกิจกรรมพัฒนาผู้เรียน", "เงินรายได้สถานศึกษา", "เงินสมทบห้องพิเศษวิทย์", "เงินสมทบห้อง 4 เหล่าทัพ"];
+            const availableTypes = Object.keys(summaryData).filter(t => t !== 'ไม่ใช้งบประมาณ');
+            availableTypes.sort((a, b) => {
+                const indexA = customOrder.indexOf(a);
+                const indexB = customOrder.indexOf(b);
+                return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999);
+            });
+
+            availableTypes.forEach(type => {
+                const data = summaryData[type];
+                html += `
+                <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
+                    <h4 class="font-bold text-gray-800 text-md border-b pb-2 mb-2 truncate" title="${type}">${type}</h4>
+                    <div class="flex justify-between text-sm mb-1 text-gray-600"><span>จัดสรร:</span> <span class="font-medium">${fmtMoney(data.received)}</span></div>
+                    <div class="flex justify-between text-sm mb-1 text-orange-500"><span>ใช้ไป:</span> <span class="font-medium">${fmtMoney(data.used)}</span></div>
+                    <div class="flex justify-between text-sm font-bold mt-2 pt-2 border-t text-green-600"><span>คงเหลือ:</span> <span>${fmtMoney(data.balance)}</span></div>
+                </div>`;
+            });
+
+            summaryContainer.innerHTML = html;
+        }
+
         function renderTable() {
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
-            const paginatedItems = allActivities.slice(start, end);
+            const paginatedItems = filteredActivities.slice(start, end);
             
             let html = '';
             paginatedItems.forEach((act, idx) => {
+                const usedAmt = act.budget_received - act.budget_balance; 
                 html += `
                 <tr class="hover:bg-blue-50 transition">
-                    <td class="px-4 py-3 whitespace-nowrap">${start + idx + 1}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center">${start + idx + 1}</td>
                     <td class="px-4 py-3">
                         <div class="font-bold text-gray-800">${act.activity_name || '-'}</div>
                         <div class="text-xs text-gray-500">โครงการ: ${act.project_name || '-'}</div>
                     </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-blue-700">${act.budget_type || '-'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center text-blue-700">${act.budget_type || '-'}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-medium">${fmtMoney(act.budget_received)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-orange-600 font-medium">${fmtMoney(usedAmt)}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-bold ${act.budget_balance < 0 ? 'text-red-600' : 'text-green-600'}">${fmtMoney(act.budget_balance)}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-center admin-only ${currentUser ? '' : 'hidden'}">
                         <button onclick="editActivity(${act.rowIndex})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs mx-1 font-bold shadow transition">แก้ไข</button>
@@ -428,12 +574,12 @@
                 </tr>`;
             });
             
-            document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="6" class="text-center py-4 text-gray-500">ไม่มีข้อมูล</td></tr>';
-            document.getElementById('pageInfo').innerText = `แสดงหน้า ${currentPage} จาก ${Math.ceil(allActivities.length / itemsPerPage) || 1}`;
+            document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="7" class="text-center py-6 text-gray-500">ไม่มีข้อมูล หรือ ไม่พบผลการค้นหา</td></tr>';
+            document.getElementById('pageInfo').innerText = `แสดงหน้า ${currentPage} จาก ${Math.ceil(filteredActivities.length / itemsPerPage) || 1}`;
         }
 
         function prevPage() { if(currentPage > 1) { currentPage--; renderTable(); } }
-        function nextPage() { if(currentPage < Math.ceil(allActivities.length / itemsPerPage)) { currentPage++; renderTable(); } }
+        function nextPage() { if(currentPage < Math.ceil(filteredActivities.length / itemsPerPage)) { currentPage++; renderTable(); } }
 
         function clearForm() {
             ['inpRowIndex', 'inpProjectId', 'inpProjectName', 'inpActivityId', 'inpActivityName', 'inpTeacher', 'inpBudgetType', 'inpBudgetReceived', 'inpBudgetBalance'].forEach(id => {
@@ -445,7 +591,6 @@
         function handleBudgetTypeChange() {
             const type = document.getElementById('inpBudgetType').value;
             const receivedInput = document.getElementById('inpBudgetReceived');
-            
             if (type === 'ไม่ใช้งบประมาณ') {
                 receivedInput.value = '0';
                 receivedInput.readOnly = true;
@@ -458,100 +603,69 @@
 
         function openAddActivity() {
             clearForm(); 
-            
             document.getElementById('formTitle').innerText = 'เพิ่มโครงการ/กิจกรรมใหม่';
             document.getElementById('btnSaveData').innerText = 'บันทึกข้อมูล';
-            
             document.getElementById('divProjectId').classList.remove('hidden');
             document.getElementById('divActivityId').classList.remove('hidden');
             document.getElementById('divTeacher').classList.remove('hidden');
             document.getElementById('divBudgetBalance').classList.add('hidden'); 
-            
             switchTab('manageData');
         }
 
         function editActivity(rowIndex) {
             const act = allActivities.find(a => a.rowIndex === rowIndex);
             if (!act) return;
-
             document.getElementById('formTitle').innerText = 'แก้ไขข้อมูลกิจกรรม';
             document.getElementById('btnSaveData').innerText = 'ยืนยัน';
             document.getElementById('inpRowIndex').value = act.rowIndex;
-            
             document.getElementById('inpProjectId').value = act.project_id;
             document.getElementById('inpProjectName').value = act.project_name;
             document.getElementById('inpActivityId').value = act.activity_id;
             document.getElementById('inpActivityName').value = act.activity_name;
             document.getElementById('inpTeacher').value = act.teacher;
-            
             document.getElementById('inpBudgetType').value = act.budget_type;
             handleBudgetTypeChange(); 
-            
             document.getElementById('inpBudgetReceived').value = act.budget_received;
             document.getElementById('inpBudgetBalance').value = act.budget_balance;
-
             document.getElementById('divProjectId').classList.add('hidden');
             document.getElementById('divActivityId').classList.add('hidden');
             document.getElementById('divTeacher').classList.add('hidden');
             document.getElementById('divBudgetBalance').classList.remove('hidden');
-            
             switchTab('manageData');
         }
 
         function saveActivity() {
             const rowIndex = document.getElementById('inpRowIndex').value;
-            
             const receivedVal = parseFloat(document.getElementById('inpBudgetReceived').value) || 0;
             const balanceVal = rowIndex ? (parseFloat(document.getElementById('inpBudgetBalance').value) || 0) : receivedVal;
-            
             if (rowIndex && balanceVal > receivedVal) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ถูกต้อง',
-                    text: 'งบประมาณคงเหลือ ต้องไม่มากกว่างบประมาณที่ได้รับจัดสรรค่ะ'
-                });
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'งบประมาณคงเหลือ ต้องไม่มากกว่างบประมาณที่ได้รับจัดสรรค่ะ' });
                 return; 
             }
-
             const data = {
-                rowIndex: rowIndex,
-                project_id: document.getElementById('inpProjectId').value,
-                project_name: document.getElementById('inpProjectName').value,
-                activity_id: document.getElementById('inpActivityId').value,
-                activity_name: document.getElementById('inpActivityName').value,
-                teacher: document.getElementById('inpTeacher').value,
-                budget_type: document.getElementById('inpBudgetType').value,
-                budget_received: receivedVal,
-                budget_balance: balanceVal
+                rowIndex: rowIndex, project_id: document.getElementById('inpProjectId').value, project_name: document.getElementById('inpProjectName').value,
+                activity_id: document.getElementById('inpActivityId').value, activity_name: document.getElementById('inpActivityName').value,
+                teacher: document.getElementById('inpTeacher').value, budget_type: document.getElementById('inpBudgetType').value,
+                budget_received: receivedVal, budget_balance: balanceVal
             };
-
             const action = rowIndex ? 'updateActivity' : 'addActivity';
-            
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
-            fetch(GAS_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: action, username: currentUser.username, password: currentUser.password, data: data })
-            })
+            fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: action, username: currentUser.username, password: currentUser.password, data: data }) })
             .then(r => r.json())
             .then(res => {
-                if(res.success){
-                    Swal.fire('สำเร็จ', res.message, 'success');
-                    loadActivities();
-                    switchTab('dashboard'); 
-                } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                if(res.success){ Swal.fire('สำเร็จ', res.message, 'success'); loadActivities(); switchTab('dashboard'); } 
+                else { Swal.fire('ผิดพลาด', res.message, 'error'); }
             });
         }
 
         function openCutBudget(rowIndex) {
             const act = allActivities.find(a => a.rowIndex === rowIndex);
             if (!act) return;
-
             Swal.fire({
                 title: 'ตัดยอดงบประมาณ',
                 html: `
                     <p class="text-sm mb-2 text-left">กิจกรรม: <b>${act.activity_name}</b></p>
                     <p class="text-sm mb-4 text-left text-green-600">ยอดคงเหลือปัจจุบัน: <b>${fmtMoney(act.budget_balance)} บาท</b></p>
-                    
                     <div class="mb-3 text-left">
                         <label class="block text-sm mb-1 font-medium text-gray-700">จำนวนเงินที่เบิกจ่าย (บาท)</label>
                         <input type="number" id="cut-amount" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" placeholder="ระบุจำนวนเงิน">
@@ -559,16 +673,11 @@
                     <div class="text-left">
                         <label class="block text-sm mb-1 font-medium text-gray-700">รายละเอียดเพิ่มเติม</label>
                         <input type="text" id="cut-details" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" placeholder="ระบุรายละเอียด เช่น ค่าวัสดุ, ค่าตอบแทน">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยันการตัดงบ',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#ef4444',
+                    </div>`,
+                showCancelButton: true, confirmButtonText: 'ยืนยันการตัดงบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#ef4444',
                 preConfirm: () => {
                     const amt = parseFloat(document.getElementById('cut-amount').value);
                     const details = document.getElementById('cut-details').value;
-                    
                     if (!amt || amt <= 0) { Swal.showValidationMessage('กรุณาระบุจำนวนเงินให้ถูกต้อง'); return false; }
                     if (amt > act.budget_balance) { Swal.showValidationMessage('ยอดเงินไม่เพียงพอ!'); return false; }
                     return { amount: amt, details: details };
@@ -578,122 +687,165 @@
                     Swal.fire({ title: 'กำลังบันทึกการตัดงบ...', didOpen: () => Swal.showLoading() });
                     fetch(GAS_API_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ 
-                            action: 'deductBudget', 
-                            username: currentUser.username, 
-                            password: currentUser.password, 
-                            data: { rowIndex: act.rowIndex, amount: result.value.amount, details: result.value.details }
-                        })
-                    })
-                    .then(r => r.json())
-                    .then(res => {
-                        if(res.success){
-                            Swal.fire('สำเร็จ', res.message, 'success');
-                            loadActivities();
-                        } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+                        body: JSON.stringify({ action: 'deductBudget', username: currentUser.username, password: currentUser.password, data: { rowIndex: act.rowIndex, amount: result.value.amount, details: result.value.details }})
+                    }).then(r => r.json()).then(res => {
+                        if(res.success){ Swal.fire('สำเร็จ', res.message, 'success'); loadActivities(); } 
+                        else { Swal.fire('ผิดพลาด', res.message, 'error'); }
                     });
                 }
             });
         }
 
         function editAccountData() {
-            document.getElementById('inpAccMode').value = 'edit';
-            document.getElementById('accFormTitle').innerText = 'จัดการบัญชีผู้ใช้';
-            document.getElementById('inpAccUser').value = currentUser.username || '';
-            document.getElementById('inpAccPass').value = currentUser.password || '';
+            document.getElementById('inpAccMode').value = 'edit'; document.getElementById('accFormTitle').innerText = 'จัดการบัญชีผู้ใช้';
+            document.getElementById('inpAccUser').value = currentUser.username || ''; document.getElementById('inpAccPass').value = currentUser.password || '';
             document.getElementById('inpAccName').value = currentUser.admin_name || '';
-            
             const roleSelect = document.getElementById('inpAccRole');
-            if(currentUser.role === 'Admin' || currentUser.role === 'Teacher') {
-                roleSelect.value = currentUser.role;
-            } else {
-                roleSelect.value = 'Teacher'; 
-            }
-
-            document.getElementById('inpAccDept').value = currentUser.department || '';
-            switchTab('manageAccount');
+            if(currentUser.role === 'Admin' || currentUser.role === 'Teacher') { roleSelect.value = currentUser.role; } else { roleSelect.value = 'Teacher'; }
+            document.getElementById('inpAccDept').value = currentUser.department || ''; switchTab('manageAccount');
         }
 
         function openAddUser() {
-            document.getElementById('inpAccMode').value = 'add';
-            document.getElementById('accFormTitle').innerText = 'เพิ่มบัญชีผู้ใช้ใหม่';
-            document.getElementById('inpAccUser').value = '';
-            document.getElementById('inpAccPass').value = '';
-            document.getElementById('inpAccName').value = '';
-            document.getElementById('inpAccRole').value = 'Teacher';
-            document.getElementById('inpAccDept').value = '';
-            switchTab('manageAccount');
+            document.getElementById('inpAccMode').value = 'add'; document.getElementById('accFormTitle').innerText = 'เพิ่มบัญชีผู้ใช้ใหม่';
+            document.getElementById('inpAccUser').value = ''; document.getElementById('inpAccPass').value = ''; document.getElementById('inpAccName').value = '';
+            document.getElementById('inpAccRole').value = 'Teacher'; document.getElementById('inpAccDept').value = ''; switchTab('manageAccount');
         }
 
         function saveAccountData() {
-            const mode = document.getElementById('inpAccMode').value;
-            const usr = document.getElementById('inpAccUser').value;
-            const pass = document.getElementById('inpAccPass').value;
-            const name = document.getElementById('inpAccName').value;
-            const role = document.getElementById('inpAccRole').value;
-            const dept = document.getElementById('inpAccDept').value;
-            
+            const mode = document.getElementById('inpAccMode').value; const usr = document.getElementById('inpAccUser').value;
+            const pass = document.getElementById('inpAccPass').value; const name = document.getElementById('inpAccName').value;
+            const role = document.getElementById('inpAccRole').value; const dept = document.getElementById('inpAccDept').value;
             const regex = /^[a-zA-Z0-9]{1,10}$/;
-            if (!regex.test(usr) || !regex.test(pass)) {
-                Swal.fire('ไม่สามารถบันทึกได้', 'ชื่อผู้ใช้และรหัสผ่านต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น และห้ามเว้นวรรค', 'warning');
-                return;
-            }
-
+            if (!regex.test(usr) || !regex.test(pass)) { Swal.fire('ไม่สามารถบันทึกได้', 'ชื่อผู้ใช้และรหัสผ่านต้องเป็นอักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัวเท่านั้น และห้ามเว้นวรรค', 'warning'); return; }
             const newData = { username: usr, password: pass, admin_name: name, role: role, department: dept };
-            const action = mode === 'add' ? 'addUser' : 'updateUser';
-            const loadingMsg = mode === 'add' ? 'กำลังเพิ่มบัญชีผู้ใช้...' : 'กำลังอัปเดตข้อมูลบัญชี...';
-
+            const action = mode === 'add' ? 'addUser' : 'updateUser'; const loadingMsg = mode === 'add' ? 'กำลังเพิ่มบัญชีผู้ใช้...' : 'กำลังอัปเดตข้อมูลบัญชี...';
             Swal.fire({ title: loadingMsg, didOpen: () => Swal.showLoading() });
-            fetch(GAS_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    action: action, 
-                    username: currentUser.username, 
-                    password: currentUser.password, 
-                    newData: newData 
-                })
-            })
-            .then(r => r.json())
-            .then(res => {
+            fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: action, username: currentUser.username, password: currentUser.password, newData: newData }) })
+            .then(r => r.json()).then(res => {
                 if(res.success){
                     if (mode === 'edit') {
                         currentUser = { ...currentUser, ...newData };
-                        // อัปเดตข้อมูลใน Storage ให้ถูกตัว
-                        if (sessionStorage.getItem('ns_user')) {
-                            sessionStorage.setItem('ns_user', JSON.stringify(currentUser));
-                        } else {
-                            localStorage.setItem('ns_user', JSON.stringify(currentUser));
-                        }
+                        if (sessionStorage.getItem('ns_user')) { sessionStorage.setItem('ns_user', JSON.stringify(currentUser)); } else { localStorage.setItem('ns_user', JSON.stringify(currentUser)); }
                         applyLoginState();
                     }
-                    Swal.fire('สำเร็จ', res.message, 'success');
-                    clickHome();
+                    Swal.fire('สำเร็จ', res.message, 'success'); clickHome();
                 } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
             });
         }
 
-        // 🌟 ระบบสร้างและจัดพิมพ์รายงาน PDF 
         function generatePrintPDF() {
-            if (allActivities.length === 0) {
+            if (filteredActivities.length === 0) {
                 Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับจัดพิมพ์ค่ะ', 'warning');
                 return;
             }
 
             const printContainer = document.getElementById('printContainer');
             let printHTML = '';
+            
+            // 🌟 1. ประมวลผลข้อมูลสำหรับสร้างตารางสรุป (Cover Page)
+            const summaryData = {};
+            let totalReceived = 0, totalUsed = 0, totalBalance = 0;
+            let totalActivities = 0;
+            const totalProjects = new Set();
+
+            filteredActivities.forEach(act => {
+                const type = act.budget_type || 'ไม่ได้ระบุประเภท';
+                const used = act.budget_received - act.budget_balance;
+                
+                // 🌟 เพิ่มตัวแปรนับจำนวนกิจกรรมและ Set เก็บชื่อโครงการที่ไม่ซ้ำกัน
+                if(!summaryData[type]) { summaryData[type] = { received: 0, used: 0, balance: 0, activities: 0, projects: new Set() }; }
+                
+                summaryData[type].received += act.budget_received;
+                summaryData[type].used += used;
+                summaryData[type].balance += act.budget_balance;
+                summaryData[type].activities += 1;
+                
+                if (act.project_name) {
+                    summaryData[type].projects.add(act.project_name);
+                    totalProjects.add(act.project_name);
+                }
+
+                totalReceived += act.budget_received;
+                totalUsed += used;
+                totalBalance += act.budget_balance;
+                totalActivities += 1;
+            });
+
+            const customOrder = ["เงินอุดหนุนรายหัว", "เงินกิจกรรมพัฒนาผู้เรียน", "เงินรายได้สถานศึกษา", "เงินสมทบห้องพิเศษวิทย์", "เงินสมทบห้อง 4 เหล่าทัพ", "ไม่ใช้งบประมาณ"];
+            // 🌟 นำฟิลเตอร์กรอง 'ไม่ใช้งบประมาณ' ออก เพื่อให้แสดงครบทุกรายการ
+            const availableTypes = Object.keys(summaryData);
+            availableTypes.sort((a, b) => {
+                const indexA = customOrder.indexOf(a);
+                const indexB = customOrder.indexOf(b);
+                return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999);
+            });
+
+            // 🌟 2. วาด HTML หน้าแรก (หน้ารายงานสรุป)
+            printHTML += `
+            <div class="print-page-break">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" style="width: 80px; height: 80px; margin: 0 auto; display: block; object-fit: contain;">
+                    <div style="font-size: 20pt; font-weight: bold; margin-top: 10px; line-height: 1.2;">โรงเรียนนราสิกขาลัย</div>
+                    <div style="font-size: 18pt; font-weight: bold; line-height: 1.2;">รายงานสรุปงบประมาณโครงการและกิจกรรม ปีการศึกษา 2569</div>
+                </div>
+                
+                <div class="print-wrapper" style="margin-top: 30px;">
+                    <div style="font-size: 16pt; font-weight: bold; margin-bottom: 10px; text-decoration: underline;">สรุปภาพรวมตามประเภทงบประมาณ</div>
+                    <table class="print-table" style="margin-top: 0; border: 2px solid #000;">
+                        <thead>
+                            <tr style="background-color: #eaeaea;">
+                                <th class="col-auto" style="text-align: left; padding: 8px 12px;">ประเภทงบประมาณ</th>
+                                <th class="col-fit" style="padding: 8px 12px;">จำนวนโครงการ</th>
+                                <th class="col-fit" style="padding: 8px 12px;">จำนวนกิจกรรม</th>
+                                <th class="col-fit" style="padding: 8px 12px;">จัดสรร (บาท)</th>
+                                <th class="col-fit" style="padding: 8px 12px;">ใช้ไป (บาท)</th>
+                                <th class="col-fit" style="padding: 8px 12px;">คงเหลือ (บาท)</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            availableTypes.forEach(type => {
+                const data = summaryData[type];
+                printHTML += `
+                    <tr>
+                        <td style="padding: 8px 12px;">${type}</td>
+                        <td style="text-align: center; padding: 8px 12px;">${data.projects.size}</td>
+                        <td style="text-align: center; padding: 8px 12px;">${data.activities}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(data.received)}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(data.used)}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(data.balance)}</td>
+                    </tr>`;
+            });
+
+            // แถวรวมยอด
+            printHTML += `
+                    <tr style="font-weight: bold; background-color: #f9f9f9; border-top: 2px solid #000;">
+                        <td style="text-align: center; padding: 8px 12px;">รวมทุกประเภทงบประมาณ</td>
+                        <td style="text-align: center; padding: 8px 12px;">${totalProjects.size}</td>
+                        <td style="text-align: center; padding: 8px 12px;">${totalActivities}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(totalReceived)}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(totalUsed)}</td>
+                        <td style="text-align: right; padding: 8px 12px;">${fmtMoney(totalBalance)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            </div>`;
+
+            // 🌟 3. วาด HTML หน้าถัดไป (รายละเอียดกิจกรรม 20 บรรทัด/หน้า)
             const itemsPerPagePrint = 20; 
-            const totalPages = Math.ceil(allActivities.length / itemsPerPagePrint);
+            const totalPages = Math.ceil(filteredActivities.length / itemsPerPagePrint);
 
             for (let p = 0; p < totalPages; p++) {
                 const start = p * itemsPerPagePrint;
-                const pageItems = allActivities.slice(start, start + itemsPerPagePrint);
+                const pageItems = filteredActivities.slice(start, start + itemsPerPagePrint);
                 
                 printHTML += `
                 <div class="print-page-break">
                     <div style="text-align: center; margin-bottom: 0;">
                         <img src="https://www.ns.ac.th/wp-content/uploads/2024/12/cropped-logo-sq.png" style="width: 55px; height: 55px; margin: 0 auto; display: block; object-fit: contain;">
                         <div style="font-size: 18pt; font-weight: bold; margin-top: 2px; line-height: 1.2;">โรงเรียนนราสิกขาลัย</div>
-                        <div style="font-size: 16pt; font-weight: bold; line-height: 1.2;">รายงานสรุปงบประมาณโครงการและกิจกรรม ปีการศึกษา 2569</div>
+                        <div style="font-size: 16pt; font-weight: bold; line-height: 1.2;">รายละเอียดงบประมาณโครงการและกิจกรรม ปีการศึกษา 2569</div>
                     </div>
                     
                     <div class="print-wrapper">
@@ -703,19 +855,22 @@
                                     <th class="col-fit">ลำดับ</th>
                                     <th class="col-auto">ชื่อกิจกรรม</th>
                                     <th class="col-fit">ประเภทงบประมาณ</th>
-                                    <th class="col-fit">งบประมาณที่ได้รับจัดสรร</th>
-                                    <th class="col-fit">งบประมาณคงเหลือ</th>
+                                    <th class="col-fit">จัดสรร (บาท)</th>
+                                    <th class="col-fit">ใช้ไป (บาท)</th>
+                                    <th class="col-fit">คงเหลือ (บาท)</th>
                                 </tr>
                             </thead>
                             <tbody>`;
                 
                 pageItems.forEach((act, idx) => {
+                    const usedAmt = act.budget_received - act.budget_balance;
                     printHTML += `
                         <tr>
                             <td class="col-fit" style="text-align: center;">${start + idx + 1}</td>
                             <td class="col-auto" style="padding-left: 5px; white-space: normal;">${act.activity_name || '-'}</td>
                             <td class="col-fit" style="text-align: center;">${act.budget_type || '-'}</td>
                             <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_received)}</td>
+                            <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(usedAmt)}</td>
                             <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_balance)}</td>
                         </tr>`;
                 });
