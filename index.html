@@ -285,24 +285,30 @@
 
         document.getElementById('btnLoginPanel').addEventListener('click', () => {
             Swal.fire({
-                title: 'เข้าสู่ระบบ',
+                title: '<span class="text-xl font-bold">เข้าสู่ระบบ</span>',
+                width: '320px', // บีบขนาดความกว้างหน้าต่างให้เหมาะกับมือถือ
+                padding: '1.5em',
                 html: `
-                    <input type="text" id="swal-usr" class="swal2-input" placeholder="Username" maxlength="10">
-                    
-                    <div style="position: relative; max-width: 100%; width: 17em; margin: 1em auto 0; display: flex; justify-content: center;">
-                        <input type="password" id="swal-pass" class="swal2-input" style="margin: 0; width: 100%; padding-right: 2.5rem;" placeholder="Password" maxlength="10">
-                        <span id="toggle-pass" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; user-select: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        </span>
-                    </div>
-                    
-                    <p class="text-xs text-gray-500 mt-2">* อักษรภาษาอังกฤษหรือตัวเลข 1-10 ตัว</p>
-                    
-                    <div class="mt-4 flex justify-center w-full">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="swal-remember" class="w-4 h-4 text-blue-600 rounded">
-                            <span class="text-sm font-medium text-gray-700">จำข้อมูลผู้ใช้ (Remember me)</span>
-                        </label>
+                    <div style="display: flex; flex-direction: column; align-items: center; w-full; max-width: 240px; margin: 0 auto;">
+                        
+                        <!-- 🌟 กล่อง Username -->
+                        <input type="text" id="swal-usr" class="swal2-input" style="margin: 0 0 12px 0; width: 100%; height: 42px; font-size: 15px;" placeholder="Username" maxlength="10">
+                        
+                        <!-- 🌟 กล่อง Password พร้อมไอคอนดวงตา -->
+                        <div style="position: relative; width: 100%;">
+                            <input type="password" id="swal-pass" class="swal2-input" style="margin: 0; width: 100%; height: 42px; font-size: 15px; padding-right: 2.5rem;" placeholder="Password" maxlength="10">
+                            <span id="toggle-pass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; user-select: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </span>
+                        </div>
+                        
+                        <!-- 🌟 จำข้อมูลผู้ใช้ จัดกึ่งกลางเป๊ะ -->
+                        <div class="mt-4 flex justify-center w-full">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="swal-remember" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="text-sm font-medium text-gray-700">จำข้อมูลผู้ใช้</span>
+                            </label>
+                        </div>
                     </div>
                 `,
                 didOpen: () => {
