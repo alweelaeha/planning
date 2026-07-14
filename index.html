@@ -11,7 +11,6 @@
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: #f3f4f6; 
-            /* 🌟 ปลดล็อก user-select เพื่อให้อาบีลากคลุมดำและคัดลอกข้อความได้ */
         }
         
         /* สไตล์สำหรับการพิมพ์รายงาน (Print) */
@@ -63,7 +62,6 @@
         <h1 class="text-3xl font-bold text-gray-800">NS Activity and Budget Management</h1>
         <h1 class="text-3xl font-bold text-gray-800 mt-2">( NS-ABM )</h1>
 
-        <!-- 🌟 แผง User แสดงข้อมูลต้อนรับและปุ่มจัดการสิทธิ์ -->
         <div class="mt-6 flex flex-col items-center justify-center w-full">
             <div id="userPanelInfo" class="hidden flex flex-col items-center space-y-4 w-full max-w-2xl">
                 <span id="txtUserNameDisplay" class="text-blue-800 font-bold text-lg md:text-xl bg-blue-50 px-6 py-2 rounded-full border border-blue-200 shadow-sm text-center w-full md:w-auto"></span>
@@ -77,16 +75,40 @@
     </header>
 
     <main class="flex-grow p-6 w-full max-w-7xl mx-auto">
-        <!-- Admin Menu -->
         <div id="adminMenu" class="hidden mb-6 bg-white p-4 rounded-xl shadow flex flex-wrap justify-center gap-3">
             <button onclick="clickHome()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 rounded font-bold text-gray-700 transition shadow-sm">หน้าหลัก (Dashboard)</button>
             <button onclick="openAddActivity()" class="px-6 py-2 bg-blue-100 hover:bg-blue-200 rounded font-bold text-blue-700 transition shadow-sm">เพิ่มโครงการ/กิจกรรม</button>
             <button onclick="generatePrintPDF()" class="px-6 py-2 bg-purple-100 hover:bg-purple-200 rounded font-bold text-purple-700 transition shadow-sm">จัดพิมพ์รายงาน (PDF)</button>
         </div>
 
-        <!-- Dashboard -->
         <div id="tab-dashboard">
             
+            <!-- 🌟 แผงค้นหาและตัวกรอง ย้ายมาด้านบนสุดและจัดให้อยู่แถวเดียวกัน -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-wrap lg:flex-nowrap gap-3 items-end justify-between">
+                <div class="flex-grow w-full lg:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ค้นหา</label>
+                    <input type="text" id="searchInput" onkeyup="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200" placeholder="🔍 ชื่อโครงการหรือกิจกรรม...">
+                </div>
+                <div class="flex-grow w-full lg:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">โครงการ</label>
+                    <select id="filterProject" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
+                        <option value="">-- กรองตามชื่อโครงการทั้งหมด --</option>
+                    </select>
+                </div>
+                <div class="flex-grow w-full lg:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทงบ</label>
+                    <select id="filterBudgetType" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
+                        <option value="">-- กรองตามประเภทงบทั้งหมด --</option>
+                    </select>
+                </div>
+                <div class="w-full lg:w-auto mt-2 lg:mt-0">
+                    <button onclick="refreshData()" class="w-full lg:w-auto text-sm bg-gray-600 text-white px-5 py-2 rounded-lg hover:bg-gray-700 font-bold shadow transition flex items-center justify-center whitespace-nowrap h-[38px]">
+                        🔄 รีเฟรชข้อมูล
+                    </button>
+                </div>
+            </div>
+
+            <!-- สรุปข้อมูลตามประเภทงบประมาณ -->
             <div class="mb-6">
                 <h3 class="text-xl font-bold text-gray-800 mb-3 border-l-4 border-blue-600 pl-3">สรุปข้อมูลตามประเภทงบประมาณ</h3>
                 <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -95,26 +117,8 @@
             </div>
 
             <div class="bg-white rounded-xl shadow overflow-hidden">
-                <div class="bg-blue-800 text-white px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h3 class="text-lg font-bold">สรุปงบประมาณกิจกรรมทั้งหมด</h3>
-                    <button onclick="clickHome()" class="text-sm bg-white text-blue-800 px-4 py-2 rounded hover:bg-gray-100 font-bold shadow w-full md:w-auto">รีเฟรชข้อมูล</button>
-                </div>
-
-                <!-- แผงค้นหาและกรองข้อมูล -->
-                <div class="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap gap-3 items-center">
-                    <div class="flex-grow min-w-[200px]">
-                        <input type="text" id="searchInput" onkeyup="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200" placeholder="🔍 ค้นหาชื่อโครงการ หรือ กิจกรรม...">
-                    </div>
-                    <div class="flex-grow min-w-[200px]">
-                        <select id="filterProject" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
-                            <option value="">-- กรองตามชื่อโครงการทั้งหมด --</option>
-                        </select>
-                    </div>
-                    <div class="flex-grow min-w-[200px]">
-                        <select id="filterBudgetType" onchange="applyFilters()" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-blue-200 bg-white">
-                            <option value="">-- กรองตามประเภทงบทั้งหมด --</option>
-                        </select>
-                    </div>
+                <div class="bg-blue-800 text-white px-6 py-4">
+                    <h3 class="text-lg font-bold">ตารางรายละเอียดงบประมาณกิจกรรมทั้งหมด</h3>
                 </div>
                 
                 <div class="overflow-x-auto p-4">
@@ -127,7 +131,7 @@
                                 <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">จัดสรร (บาท)</th>
                                 <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">ใช้ไป (บาท)</th>
                                 <th class="px-4 py-3 text-right text-sm font-bold text-gray-700">คงเหลือ (บาท)</th>
-                                <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">เอกสารแนบ</th> <!-- 🌟 คอลัมน์เอกสารใหม่ -->
+                                <th class="px-4 py-3 text-center text-sm font-bold text-gray-700">เอกสารแนบ</th> 
                                 <th class="px-4 py-3 text-center text-sm font-bold text-gray-700 admin-only hidden">จัดการ</th>
                             </tr>
                         </thead>
@@ -163,12 +167,12 @@
                     <input type="text" id="inpProjectName" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
                 </div>
                 <div id="divActivityId">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสกิจกรรม</label>
-                    <input type="text" id="inpActivityId" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 text-red-600">* รหัสกิจกรรม (ห้ามซ้ำ)</label>
+                    <input type="text" id="inpActivityId" class="w-full border border-red-300 rounded-lg p-2 focus:ring focus:ring-blue-200">
                 </div>
                 <div id="divActivityName">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อกิจกรรม</label>
-                    <input type="text" id="inpActivityName" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 text-red-600">* ชื่อกิจกรรม (ห้ามซ้ำ)</label>
+                    <input type="text" id="inpActivityName" class="w-full border border-red-300 rounded-lg p-2 focus:ring focus:ring-blue-200">
                 </div>
                 <div id="divTeacher">
                     <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อครูผู้รับผิดชอบ</label>
@@ -195,15 +199,22 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">งบประมาณคงเหลือ (บาท)</label>
                     <input type="number" id="inpBudgetBalance" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
                 </div>
-                <!-- 🌟 เพิ่มฟิลด์สำหรับใส่ลิงก์ Google Drive ของเอกสาร -->
                 <div id="divDocumentLink" class="col-span-1 md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">ลิงก์เอกสารเสนออนุมัติ (Google Drive / PDF Link)</label>
                     <input type="url" id="inpDocumentLink" class="w-full border border-blue-300 rounded-lg p-2 focus:ring focus:ring-blue-200" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
                 </div>
             </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition font-medium">ยกเลิก</button>
-                <button id="btnSaveData" onclick="saveActivity()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow transition">บันทึกข้อมูล</button>
+            
+            <div class="mt-8 flex justify-between items-center border-t pt-4 w-full">
+                <!-- 🌟 เพิ่มปุ่มลบกิจกรรมทางด้านซ้าย -->
+                <div>
+                    <button id="btnDeleteActivity" onclick="confirmDeleteActivity()" class="px-4 py-2 bg-red-100 hover:bg-red-500 hover:text-white text-red-600 rounded-lg transition font-bold text-sm shadow-sm hidden">🗑️ ลบกิจกรรมนี้</button>
+                </div>
+                <!-- ปุ่มบันทึกทางด้านขวา -->
+                <div class="flex space-x-3">
+                    <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition font-medium text-gray-800 shadow-sm">ยกเลิก</button>
+                    <button id="btnSaveData" onclick="saveActivity()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow transition">บันทึกข้อมูล</button>
+                </div>
             </div>
         </div>
 
@@ -251,7 +262,6 @@
 
     <!-- Script -->
     <script>
-        // 🌟 ป้องกันการคลิกขวาและการใช้ปุ่มลัดแอบดูโค้ด (Anti-Inspect)
         document.addEventListener('contextmenu', event => {
             event.preventDefault();
             Toast.fire({ icon: 'warning', title: 'ระบบป้องกันการคลิกขวาค่ะ' });
@@ -266,9 +276,8 @@
             }
         });
 
-        // 🌟 ใช้ URL ลงท้าย /exec เพื่อการเชื่อมต่อที่สมบูรณ์
-        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby2dfS5G-2AIYJEONArfX2rVtZSXRthXzmlxkm71WhOMJUhnQPxxTog9In3b8l-SVOH/exec'; 
-        
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby2dfS5G-2AIYJEONArfX2rVtZSXRthXzmlxkm71WhOMJUhnQPxxTog9In3b8l-SVOH/exec';
+
         let allActivities = [];
         let filteredActivities = [];
         let currentPage = 1;
@@ -400,8 +409,20 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterProject').value = '';
             document.getElementById('filterBudgetType').value = '';
-            loadActivities();
+            currentPage = 1;
             switchTab('dashboard');
+            // หมายเหตุ: โค้ดเดิมดึงข้อมูลตรงนี้ แต่เราแยกการดึงไปไว้ที่ปุ่มรีเฟรชแทนแล้ว เพื่อไม่ให้ระบบหน่วงตอนสลับแท็บ
+            if(allActivities.length === 0) loadActivities();
+            else applyFilters();
+        }
+
+        // 🌟 แก้ปัญหาปุ่มรีเฟรชข้อมูล 
+        function refreshData() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterBudgetType').value = '';
+            currentPage = 1;
+            loadActivities();
         }
 
         function loadActivities() {
@@ -499,6 +520,7 @@
             renderTable();
         }
 
+        // 🌟 หน้าแดชบอร์ด แสดงเฉพาะ "สรุปตามประเภทงบประมาณ" เท่านั้น (ตามที่ขอ)
         function renderSummary() {
             const summaryContainer = document.getElementById('summaryCards');
             const summaryData = {};
@@ -561,7 +583,6 @@
             paginatedItems.forEach((act, idx) => {
                 const usedAmt = act.budget_received - act.budget_balance; 
                 
-                // 🌟 ตรวจสอบและสร้างปุ่ม "เปิดเอกสาร" หากมีลิงก์แนบอยู่
                 const docButton = act.document_link 
                     ? `<a href="${act.document_link}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-2.5 py-1 rounded-md text-xs font-bold shadow-sm transition inline-flex items-center gap-1">📄 เปิดไฟล์</a>`
                     : `<span class="text-xs text-gray-400 font-medium">ไม่มีเอกสาร</span>`;
@@ -577,7 +598,7 @@
                     <td class="px-4 py-3 whitespace-nowrap text-right font-medium">${fmtMoney(act.budget_received)}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right text-orange-600 font-medium">${fmtMoney(usedAmt)}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-bold ${act.budget_balance < 0 ? 'text-red-600' : 'text-green-600'}">${fmtMoney(act.budget_balance)}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center">${docButton}</td> <!-- 🌟 คอลัมน์ปุ่มเปิดเอกสาร -->
+                    <td class="px-4 py-3 whitespace-nowrap text-center">${docButton}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-center admin-only ${currentUser ? '' : 'hidden'}">
                         <button onclick="editActivity(${act.rowIndex})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs mx-1 font-bold shadow transition">แก้ไข</button>
                         <button onclick="openCutBudget(${act.rowIndex})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs mx-1 font-bold shadow transition">ตัดงบ</button>
@@ -620,6 +641,7 @@
             document.getElementById('divActivityId').classList.remove('hidden');
             document.getElementById('divTeacher').classList.remove('hidden');
             document.getElementById('divBudgetBalance').classList.add('hidden'); 
+            document.getElementById('btnDeleteActivity').classList.add('hidden'); // ซ่อนปุ่มลบ
             switchTab('manageData');
         }
 
@@ -638,29 +660,55 @@
             handleBudgetTypeChange(); 
             document.getElementById('inpBudgetReceived').value = act.budget_received;
             document.getElementById('inpBudgetBalance').value = act.budget_balance;
-            document.getElementById('inpDocumentLink').value = act.document_link || ''; 
+            document.getElementById('inpDocumentLink').value = act.document_link || '';
+            
             document.getElementById('divProjectId').classList.add('hidden');
             document.getElementById('divActivityId').classList.add('hidden');
             document.getElementById('divTeacher').classList.add('hidden');
             document.getElementById('divBudgetBalance').classList.remove('hidden');
+            document.getElementById('btnDeleteActivity').classList.remove('hidden'); // แสดงปุ่มลบ
             switchTab('manageData');
         }
 
+        // 🌟 ด่านตรวจข้อมูลซ้ำ
         function saveActivity() {
             const rowIndex = document.getElementById('inpRowIndex').value;
+            const actId = document.getElementById('inpActivityId').value.trim();
+            const actName = document.getElementById('inpActivityName').value.trim();
             const receivedVal = parseFloat(document.getElementById('inpBudgetReceived').value) || 0;
             const balanceVal = rowIndex ? (parseFloat(document.getElementById('inpBudgetBalance').value) || 0) : receivedVal;
+            
             if (rowIndex && balanceVal > receivedVal) {
                 Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'งบประมาณคงเหลือ ต้องไม่มากกว่างบประมาณที่ได้รับจัดสรรค่ะ' });
                 return; 
             }
+
+            // เช็กข้อมูลซ้ำ
+            if (!rowIndex) {
+                // กรณีเพิ่มใหม่
+                if (allActivities.some(a => String(a.activity_id).trim() === actId)) {
+                    Swal.fire('ข้อมูลซ้ำ!', `รหัสกิจกรรม "${actId}" มีอยู่ในระบบแล้วค่ะ`, 'warning'); return;
+                }
+                if (allActivities.some(a => String(a.activity_name).trim() === actName)) {
+                    Swal.fire('ข้อมูลซ้ำ!', `ชื่อกิจกรรม "${actName}" มีอยู่ในระบบแล้วค่ะ`, 'warning'); return;
+                }
+            } else {
+                // กรณีแก้ไข (เช็กซ้ำกับบรรทัดอื่นที่ไม่ใช่ตัวเอง)
+                if (allActivities.some(a => String(a.activity_id).trim() === actId && String(a.rowIndex) !== String(rowIndex))) {
+                    Swal.fire('ข้อมูลซ้ำ!', `รหัสกิจกรรม "${actId}" ถูกใช้ในกิจกรรมอื่นแล้วค่ะ`, 'warning'); return;
+                }
+                if (allActivities.some(a => String(a.activity_name).trim() === actName && String(a.rowIndex) !== String(rowIndex))) {
+                    Swal.fire('ข้อมูลซ้ำ!', `ชื่อกิจกรรม "${actName}" ถูกใช้ในกิจกรรมอื่นแล้วค่ะ`, 'warning'); return;
+                }
+            }
+
             const data = {
                 rowIndex: rowIndex, project_id: document.getElementById('inpProjectId').value, project_name: document.getElementById('inpProjectName').value,
-                activity_id: document.getElementById('inpActivityId').value, activity_name: document.getElementById('inpActivityName').value,
+                activity_id: actId, activity_name: actName,
                 teacher: document.getElementById('inpTeacher').value, budget_type: document.getElementById('inpBudgetType').value,
-                budget_received: receivedVal, budget_balance: balanceVal,
-                document_link: document.getElementById('inpDocumentLink').value 
+                budget_received: receivedVal, budget_balance: balanceVal, document_link: document.getElementById('inpDocumentLink').value 
             };
+            
             const action = rowIndex ? 'updateActivity' : 'addActivity';
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
             fetch(GAS_API_URL, { method: 'POST', body: JSON.stringify({ action: action, username: currentUser.username, password: currentUser.password, data: data }) })
@@ -668,6 +716,42 @@
             .then(res => {
                 if(res.success){ Swal.fire('สำเร็จ', res.message, 'success'); loadActivities(); switchTab('dashboard'); } 
                 else { Swal.fire('ผิดพลาด', res.message, 'error'); }
+            });
+        }
+
+        // 🌟 ระบบยืนยันการลบ
+        function confirmDeleteActivity() {
+            const rowIndex = document.getElementById('inpRowIndex').value;
+            if(!rowIndex) return;
+
+            Swal.fire({
+                title: 'ยืนยันการลบกิจกรรม?',
+                text: "ข้อมูลนี้ลบแล้วไม่สามารถกู้คืนได้นะคะ!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'ใช่, ลบทิ้งเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังลบข้อมูล...', didOpen: () => Swal.showLoading() });
+                    fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'deleteActivity', username: currentUser.username, password: currentUser.password, data: { rowIndex: rowIndex } })
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success) {
+                            Swal.fire('ลบสำเร็จ!', res.message, 'success');
+                            loadActivities();
+                            switchTab('dashboard');
+                        } else {
+                            Swal.fire('ข้อผิดพลาด', res.message, 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error'));
+                }
             });
         }
 
@@ -746,11 +830,9 @@
             });
         }
 
-        // 🌟 ปรับปรุงฟังก์ชันพิมพ์ PDF แบบ Smart Chunking + Grouping (Idea 3)
+        // 🌟 ฟังก์ชันพิมพ์ PDF ที่รวมการจัดกลุ่ม (Grouping) & ตัดบรรทัดอัจฉริยะ (Smart Chunking)
         function generatePrintPDF() {
-            const dataToPrint = filteredActivities.length > 0 ? filteredActivities : allActivities;
-            
-            if (dataToPrint.length === 0) {
+            if (filteredActivities.length === 0) {
                 Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับจัดพิมพ์ค่ะ', 'warning');
                 return;
             }
@@ -758,70 +840,30 @@
             const printContainer = document.getElementById('printContainer');
             let printHTML = '';
             
-            // 🌟 DATA PREP 1: สรุปภาพรวมตามประเภทงบ
+            // ==========================================
+            // 🌟 ส่วนที่ 1: หน้าสรุปภาพรวมตามประเภทงบประมาณ
+            // ==========================================
             const summaryData = {};
-            let totalReceived = 0, totalUsed = 0, totalBalance = 0;
-            let totalActivities = 0;
+            let totalReceived = 0, totalUsed = 0, totalBalance = 0, totalActivities = 0;
             const totalProjects = new Set();
 
-            // 🌟 DATA PREP 2: สรุปภาพรวมตามโครงการ (จัดกลุ่ม)
-            const projectSummaryData = {}; 
-            let totalRecProj = 0, totalUsedProj = 0, totalBalProj = 0;
-
-            dataToPrint.forEach(act => {
+            filteredActivities.forEach(act => {
                 const type = act.budget_type || 'ไม่ได้ระบุประเภท';
-                const used = (act.budget_received || 0) - (act.budget_balance || 0);
-                
-                // --- คำนวณประเภทงบ ---
+                const used = act.budget_received - act.budget_balance;
                 if(!summaryData[type]) { summaryData[type] = { received: 0, used: 0, balance: 0, activities: 0, projects: new Set() }; }
-                summaryData[type].received += (act.budget_received || 0);
-                summaryData[type].used += used;
-                summaryData[type].balance += (act.budget_balance || 0);
+                summaryData[type].received += act.budget_received; summaryData[type].used += used; summaryData[type].balance += act.budget_balance;
                 summaryData[type].activities += 1;
-                
-                if (act.project_name) {
-                    summaryData[type].projects.add(act.project_name);
-                    totalProjects.add(act.project_name);
-                }
-
-                totalReceived += (act.budget_received || 0);
-                totalUsed += used;
-                totalBalance += (act.budget_balance || 0);
-                totalActivities += 1;
-
-                // --- คำนวณตามโครงการ และเก็บกิจกรรม ---
-                const projName = String(act.project_name || 'ไม่ได้ระบุโครงการ').trim();
-                const projId = String(act.project_id || '').trim();
-                const projKey = projId ? `[${projId}] ${projName}` : projName;
-                
-                if(!projectSummaryData[projKey]) {
-                    projectSummaryData[projKey] = { received: 0, used: 0, balance: 0, activities: [] };
-                }
-                projectSummaryData[projKey].received += (act.budget_received || 0);
-                projectSummaryData[projKey].used += used;
-                projectSummaryData[projKey].balance += (act.budget_balance || 0);
-                projectSummaryData[projKey].activities.push(act); // เก็บกิจกรรมลงกล่องโครงการ
-
-                totalRecProj += (act.budget_received || 0);
-                totalUsedProj += used;
-                totalBalProj += (act.budget_balance || 0);
+                if (act.project_name) { summaryData[type].projects.add(act.project_name); totalProjects.add(act.project_name); }
+                totalReceived += act.budget_received; totalUsed += used; totalBalance += act.budget_balance; totalActivities += 1;
             });
 
-            // เรียงลำดับประเภทงบ
             const customOrder = ["เงินอุดหนุนรายหัว", "เงินกิจกรรมพัฒนาผู้เรียน", "เงินรายได้สถานศึกษา", "เงินสมทบห้องพิเศษวิทย์", "เงินสมทบห้อง 4 เหล่าทัพ", "เงินนอกงบประมาณ", "ไม่ใช้งบประมาณ"];
             const availableTypes = Object.keys(summaryData);
             availableTypes.sort((a, b) => {
-                const indexA = customOrder.indexOf(a);
-                const indexB = customOrder.indexOf(b);
+                const indexA = customOrder.indexOf(a); const indexB = customOrder.indexOf(b);
                 return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999);
             });
 
-            // เรียงลำดับโครงการ
-            const sortedProjects = Object.keys(projectSummaryData).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-
-            // ============================================================================
-            // 🌟 PAGE 1: สรุปภาพรวมตามประเภทงบประมาณ
-            // ============================================================================
             printHTML += `
             <div class="print-page-break">
                 <div style="text-align: center; margin-bottom: 20px;">
@@ -860,7 +902,7 @@
 
             printHTML += `
                     <tr style="font-weight: bold; background-color: #f9f9f9; border-top: 2px solid #000;">
-                        <td style="text-align: center; padding: 8px 12px;">รวมทั้งสิ้น</td>
+                        <td style="text-align: center; padding: 8px 12px;">รวมทุกประเภทงบประมาณ</td>
                         <td style="text-align: center; padding: 8px 12px;">${totalProjects.size}</td>
                         <td style="text-align: center; padding: 8px 12px;">${totalActivities}</td>
                         <td style="text-align: right; padding: 8px 12px;">${fmtMoney(totalReceived)}</td>
@@ -872,76 +914,176 @@
             </div>
             </div>`;
 
-            // ============================================================================
-            // 🌟 PAGE 2+: สรุปภาพรวมตามโครงการ (หน้าละ 25 บรรทัด)
-            // ============================================================================
-            if (sortedProjects.length > 0) {
-                const projItemsPerPage = 25;
-                const totalProjPages = Math.ceil(sortedProjects.length / projItemsPerPage);
+            // ==========================================
+            // 🌟 ส่วนที่ 2: หน้าสรุปภาพรวมตามโครงการ
+            // ==========================================
+            const projSummaryData = {};
+            filteredActivities.forEach(act => {
+                const pName = act.project_name ? act.project_name.trim() : 'กิจกรรมที่ไม่ได้ระบุโครงการ';
+                const pId = act.project_id || '';
+                const used = act.budget_received - act.budget_balance;
+                
+                if(!projSummaryData[pName]) { projSummaryData[pName] = { received: 0, used: 0, balance: 0, count: 0, id: pId }; }
+                projSummaryData[pName].received += act.budget_received;
+                projSummaryData[pName].used += used;
+                projSummaryData[pName].balance += act.budget_balance;
+                projSummaryData[pName].count += 1;
+            });
+            const sortedProjects = Object.keys(projSummaryData).sort((a, b) => projSummaryData[a].id.localeCompare(projSummaryData[b].id, undefined, {numeric: true}));
 
-                for (let p = 0; p < totalProjPages; p++) {
-                    const start = p * projItemsPerPage;
-                    const pageProjects = sortedProjects.slice(start, start + projItemsPerPage);
-                    
-                    printHTML += `
-                    <div class="print-page-break">
-                        <div style="text-align: left; margin-bottom: 10px; margin-top: ${p === 0 ? '30px' : '15px'};">
-                            <div style="font-size: 16pt; font-weight: bold; text-decoration: underline;">สรุปภาพรวมตามโครงการ ${p > 0 ? '(ต่อ)' : ''}</div>
-                        </div>
-                        
-                        <div class="print-wrapper">
-                            <table class="print-table" style="margin-top: 0; border: 2px solid #000;">
-                                <thead>
-                                    <tr style="background-color: #eaeaea;">
-                                        <th class="col-fit">ลำดับ</th>
-                                        <th class="col-auto" style="text-align: left; padding-left: 5px;">ชื่อโครงการ</th>
-                                        <th class="col-fit">จัดสรร (บาท)</th>
-                                        <th class="col-fit">ใช้ไป (บาท)</th>
-                                        <th class="col-fit">คงเหลือ (บาท)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                    
-                    pageProjects.forEach((proj, idx) => {
-                        const data = projectSummaryData[proj];
-                        printHTML += `
-                                    <tr>
-                                        <td class="col-fit" style="text-align: center;">${start + idx + 1}</td>
-                                        <td class="col-auto" style="padding-left: 5px;">${proj}</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.received)}</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.used)}</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.balance)}</td>
-                                    </tr>`;
-                    });
+            // สร้าง Array ของแถว (เพื่อให้ทำ Pagination ได้)
+            const projRows = [];
+            sortedProjects.forEach((pName, idx) => {
+                const data = projSummaryData[pName];
+                projRows.push(`
+                    <tr>
+                        <td class="col-fit" style="text-align: center;">${idx + 1}</td>
+                        <td class="col-auto" style="padding-left: 5px;">[${data.id}] ${pName}</td>
+                        <td class="col-fit" style="text-align: center;">${data.count}</td>
+                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.received)}</td>
+                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.used)}</td>
+                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(data.balance)}</td>
+                    </tr>
+                `);
+            });
 
-                    if (p === totalProjPages - 1) {
-                        printHTML += `
-                                    <tr style="font-weight: bold; background-color: #f9f9f9; border-top: 2px solid #000;">
-                                        <td colspan="2" class="col-auto" style="text-align: center;">รวมทั้งสิ้น</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(totalRecProj)}</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(totalUsedProj)}</td>
-                                        <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(totalBalProj)}</td>
-                                    </tr>`;
-                    }
+            // แบ่งหน้า หน้าละ 25 บรรทัด
+            const itemsPerPageProj = 25;
+            const totalProjPages = Math.ceil(projRows.length / itemsPerPageProj) || 1;
 
-                    printHTML += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>`;
-                }
+            for (let p = 0; p < totalProjPages; p++) {
+                const start = p * itemsPerPageProj;
+                const pageItems = projRows.slice(start, start + itemsPerPageProj);
+                
+                printHTML += `
+                <div class="print-page-break">
+                    <div class="print-wrapper" style="margin-top: 10px;">
+                        <div style="font-size: 16pt; font-weight: bold; margin-bottom: 5px; text-decoration: underline;">สรุปภาพรวมตามโครงการ</div>
+                        <table class="print-table" style="margin-top: 4px;">
+                            <thead>
+                                <tr>
+                                    <th class="col-fit">ลำดับ</th>
+                                    <th class="col-auto">ชื่อโครงการ</th>
+                                    <th class="col-fit">จำนวนกิจกรรม</th>
+                                    <th class="col-fit">จัดสรร (บาท)</th>
+                                    <th class="col-fit">ใช้ไป (บาท)</th>
+                                    <th class="col-fit">คงเหลือ (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pageItems.join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
             }
 
-            // ============================================================================
-            // 🌟 PAGE X+: รายละเอียดกิจกรรม (จัดกลุ่มโครงการ + Smart Chunking ปัดหน้าอัตโนมัติ)
-            // ============================================================================
-            let isFirstDetailPage = true;
-            let currentLimit = 20; 
-            let currentRowCount = 0;
-            let globalActIndex = 0;
+            // ==========================================
+            // 🌟 ส่วนที่ 3: หน้ารายละเอียดกิจกรรม (จัดกลุ่มตามโครงการ & Smart Chunking)
+            // ==========================================
+            const groupedActivities = {};
+            const standaloneActivities = [];
 
-            function openDetailPage() {
+            filteredActivities.forEach(act => {
+                const pName = act.project_name ? act.project_name.trim() : '';
+                if (pName) {
+                    if (!groupedActivities[pName]) { groupedActivities[pName] = { activities: [], totalRec: 0, totalUsed: 0, totalBal: 0, projectId: act.project_id || '' }; }
+                    groupedActivities[pName].activities.push(act);
+                    groupedActivities[pName].totalRec += parseFloat(act.budget_received) || 0;
+                    groupedActivities[pName].totalUsed += (parseFloat(act.budget_received) || 0) - (parseFloat(act.budget_balance) || 0);
+                    groupedActivities[pName].totalBal += parseFloat(act.budget_balance) || 0;
+                } else {
+                    standaloneActivities.push(act);
+                }
+            });
+
+            // สร้างคิวแถวทั้งหมดที่จะต้องพิมพ์
+            let printRowsArray = [];
+            let seq = 1;
+
+            Object.keys(groupedActivities).forEach(pName => {
+                const group = groupedActivities[pName];
+                printRowsArray.push({
+                    type: 'group_header',
+                    html: `
+                        <tr style="background-color: #e5e7eb; border: 2px solid #000;">
+                            <td colspan="6" style="padding: 6px 10px; text-align: left;">
+                                <div style="font-weight: bold;">📁 โครงการ: [${group.projectId}] ${pName}</div>
+                                <div style="font-size: 13pt; float: right; margin-top: -20px;">
+                                    (รวมจัดสรร: ${fmtMoney(group.totalRec)} | ใช้ไป: ${fmtMoney(group.totalUsed)} | คงเหลือ: <span style="color: ${group.totalBal < 0 ? 'red' : 'green'}; font-weight: bold;">${fmtMoney(group.totalBal)}</span>)
+                                </div>
+                            </td>
+                        </tr>`
+                });
+
+                group.activities.forEach(act => {
+                    const usedAmt = (parseFloat(act.budget_received) || 0) - (parseFloat(act.budget_balance) || 0);
+                    printRowsArray.push({
+                        type: 'activity',
+                        html: `
+                            <tr>
+                                <td class="col-fit" style="text-align: center;">${seq++}</td>
+                                <td class="col-auto" style="padding-left: 15px; white-space: normal;">- ${act.activity_name || '-'}</td>
+                                <td class="col-fit" style="text-align: center;">${act.budget_type || '-'}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_received)}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(usedAmt)}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_balance)}</td>
+                            </tr>`
+                    });
+                });
+            });
+
+            if (standaloneActivities.length > 0) {
+                printRowsArray.push({
+                    type: 'group_header',
+                    html: `
+                        <tr style="background-color: #e5e7eb; font-weight: bold; border: 2px solid #000;">
+                            <td colspan="6" style="padding: 6px 10px; text-align: left;">📁 กิจกรรมอื่นๆ (ไม่ระบุโครงการ)</td>
+                        </tr>`
+                });
+                standaloneActivities.forEach(act => {
+                    const usedAmt = (parseFloat(act.budget_received) || 0) - (parseFloat(act.budget_balance) || 0);
+                    printRowsArray.push({
+                        type: 'activity',
+                        html: `
+                            <tr>
+                                <td class="col-fit" style="text-align: center;">${seq++}</td>
+                                <td class="col-auto" style="padding-left: 15px; white-space: normal;">- ${act.activity_name || '-'}</td>
+                                <td class="col-fit" style="text-align: center;">${act.budget_type || '-'}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_received)}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(usedAmt)}</td>
+                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_balance)}</td>
+                            </tr>`
+                    });
+                });
+            }
+
+            // คำนวณแบ่งหน้า (Smart Chunking)
+            let currentRowIndex = 0;
+            let isFirstDetailPage = true;
+
+            while (currentRowIndex < printRowsArray.length) {
+                const rowsPerPage = isFirstDetailPage ? 20 : 25;
+                let rowsInThisPage = [];
+                let currentCount = 0;
+
+                while (currentRowIndex < printRowsArray.length && currentCount < rowsPerPage) {
+                    const row = printRowsArray[currentRowIndex];
+                    
+                    // ระบบป้องกันหัวข้อโครงการขาดตอน
+                    if (row.type === 'group_header') {
+                        if (rowsPerPage - currentCount < 3 && currentRowIndex !== printRowsArray.length - 1) {
+                            break; 
+                        }
+                    }
+                    
+                    rowsInThisPage.push(row.html);
+                    currentCount++;
+                    currentRowIndex++;
+                }
+
                 printHTML += `<div class="print-page-break">`;
+                
                 if (isFirstDetailPage) {
                     printHTML += `
                         <div style="text-align: center; margin-bottom: 0;">
@@ -949,15 +1091,16 @@
                             <div style="font-size: 18pt; font-weight: bold; margin-top: 2px; line-height: 1.2;">โรงเรียนนราสิกขาลัย</div>
                             <div style="font-size: 16pt; font-weight: bold; line-height: 1.2;">รายละเอียดงบประมาณโครงการและกิจกรรม ประจำปีการศึกษา 2569</div>
                         </div>`;
-                    currentLimit = 20; // หน้าแรกมีหัวกระดาษ โลโก้ จุได้ 20 บรรทัด
-                    isFirstDetailPage = false;
                 } else {
-                    printHTML += `<div style="margin-top: 15px;"></div>`;
-                    currentLimit = 25; // หน้าถัดไป จุได้ 25 บรรทัด
+                    printHTML += `
+                        <div style="text-align: center; margin-bottom: 5px;">
+                            <div style="font-size: 16pt; font-weight: bold; line-height: 1.2;">รายละเอียดงบประมาณโครงการและกิจกรรม ประจำปีการศึกษา 2569 (ต่อ)</div>
+                        </div>`;
                 }
+
                 printHTML += `
                     <div class="print-wrapper">
-                        <table class="print-table" style="${isFirstDetailPage ? 'margin-top: 4px;' : 'margin-top: 0;'}">
+                        <table class="print-table" style="margin-top: 4px;">
                             <thead>
                                 <tr>
                                     <th class="col-fit">ลำดับ</th>
@@ -968,84 +1111,18 @@
                                     <th class="col-fit">คงเหลือ (บาท)</th>
                                 </tr>
                             </thead>
-                            <tbody>`;
-            }
+                            <tbody>
+                                ${rowsInThisPage.join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
 
-            function closeDetailPage() {
-                if (currentRowCount > 0) {
-                    printHTML += `</tbody></table></div></div>`;
-                    currentRowCount = 0;
-                }
-            }
-
-            sortedProjects.forEach((projKey) => {
-                const proj = projectSummaryData[projKey];
-                const acts = proj.activities;
-                let actIdx = 0;
-
-                while (actIdx < acts.length) {
-                    if (currentRowCount === 0) openDetailPage();
-
-                    // 🛡️ ป้องกัน Orphan Header: ถ้าเหลือแค่ 1 บรรทัดในหน้า แต่ยังมีกิจกรรม ให้ปัดขึ้นหน้าใหม่เลย
-                    if (currentLimit - currentRowCount <= 1 && actIdx === 0) {
-                        closeDetailPage();
-                        openDetailPage();
-                    }
-
-                    // พิมพ์แถบหัวข้อโครงการ (สีเทาคาด)
-                    if (currentRowCount === 0 || actIdx === 0) {
-                        const titleSuffix = actIdx > 0 ? ' (ต่อ)' : '';
-                        printHTML += `
-                            <tr style="background-color: #e5e7eb; font-weight: bold; border-top: 2px solid #000;">
-                                <td colspan="3" class="col-auto" style="text-align: left; padding-left: 10px;">
-                                    📁 โครงการ: ${projKey}${titleSuffix}
-                                </td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(proj.received)}</td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(proj.used)}</td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px; color: ${proj.balance < 0 ? 'red' : 'inherit'}">${fmtMoney(proj.balance)}</td>
-                            </tr>
-                        `;
-                        currentRowCount++;
-                    }
-
-                    // พิมพ์กิจกรรมในโครงการ
-                    let rowsLeft = currentLimit - currentRowCount;
-                    let actsToPrint = Math.min(acts.length - actIdx, rowsLeft);
-
-                    for (let i = 0; i < actsToPrint; i++) {
-                        const act = acts[actIdx++];
-                        globalActIndex++;
-                        const usedAmt = (act.budget_received || 0) - (act.budget_balance || 0);
-                        printHTML += `
-                            <tr>
-                                <td class="col-fit" style="text-align: center;">${globalActIndex}</td>
-                                <td class="col-auto" style="padding-left: 15px; white-space: normal;">- ${act.activity_name || '-'}</td>
-                                <td class="col-fit" style="text-align: center;">${act.budget_type || '-'}</td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_received)}</td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(usedAmt)}</td>
-                                <td class="col-fit" style="text-align: right; padding-right: 5px;">${fmtMoney(act.budget_balance)}</td>
-                            </tr>
-                        `;
-                        currentRowCount++;
-                    }
-
-                    // ปิดหน้าถ้าบรรทัดเต็มโควต้า
-                    if (currentRowCount >= currentLimit) {
-                        closeDetailPage();
-                    }
-                }
-            });
-
-            // ปิดตารางหน้าสุดท้าย (ถ้ายังมีค้างอยู่)
-            if (currentRowCount > 0) {
-                closeDetailPage();
+                isFirstDetailPage = false;
             }
 
             printContainer.innerHTML = printHTML;
-            
-            setTimeout(() => {
-                window.print();
-            }, 300);
+            setTimeout(() => { window.print(); }, 300);
         }
     </script>
 </body>
